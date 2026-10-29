@@ -1,0 +1,9 @@
+/vendor/
+/node_modules/
+/.env
+/.phpunit.result.cache
+/storage/*.key
+/storage/logs/*
+!/storage/logs/.gitkeep
+/public/hot
+.phpunit-watcher.yml

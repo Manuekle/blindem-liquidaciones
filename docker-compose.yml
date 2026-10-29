@@ -1,0 +1,35 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: blindem
+      POSTGRES_PASSWORD: blindem_local
+      POSTGRES_DB: blindem
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U blindem"]
+      interval: 5s
+      retries: 10
+    volumes:
+      - blindem_pg:/var/lib/postgresql/data
+  app:
+    build: .
+    ports: ["8000:8000"]
+    environment:
+      APP_NAME: Blindem
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_KEY: "${APP_KEY}"
+      APP_URL: http://localhost:8000
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: blindem
+      DB_USERNAME: blindem
+      DB_PASSWORD: blindem_local
+      SESSION_DRIVER: file
+      CACHE_STORE: file
+    depends_on:
+      postgres:
+        condition: service_healthy
+volumes:
+  blindem_pg:
