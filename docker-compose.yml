@@ -12,8 +12,11 @@ services:
     volumes:
       - blindem_pg:/var/lib/postgresql/data
   app:
-    build: .
-    ports: ["8000:8000"]
+    build:
+      context: .
+      args:
+        INSTALL_DEV: "true"
+    ports: ["127.0.0.1:8000:8000"]
     environment:
       APP_NAME: Blindem
       APP_ENV: local
@@ -26,8 +29,16 @@ services:
       DB_DATABASE: blindem
       DB_USERNAME: blindem
       DB_PASSWORD: blindem_local
-      SESSION_DRIVER: file
+      SESSION_DRIVER: database
       CACHE_STORE: file
+      LOG_CHANNEL: stderr
+      RUN_MIGRATIONS: "true"
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(@file_get_contents('http://127.0.0.1:'.getenv('PORT').'/up')===false?1:0);"]
+      interval: 5s
+      timeout: 3s
+      start_period: 10s
+      retries: 12
     depends_on:
       postgres:
         condition: service_healthy

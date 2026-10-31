@@ -1,0 +1,33 @@
+<?php
+
+return [
+    'required' => 'El campo :attribute es obligatorio.',
+    'accepted' => 'Debes confirmar :attribute.',
+    'email' => 'El campo :attribute debe ser un correo válido.',
+    'exists' => 'La opción seleccionada en :attribute no existe.',
+    'unique' => 'El valor de :attribute ya está registrado.',
+    'integer' => 'El campo :attribute debe ser un número entero.',
+    'numeric' => 'El campo :attribute debe ser numérico.',
+    'boolean' => 'El campo :attribute debe ser verdadero o falso.',
+    'string' => 'El campo :attribute debe ser texto.',
+    'in' => 'Selecciona una opción válida en :attribute.',
+    'date' => 'El campo :attribute debe ser una fecha válida.',
+    'date_format' => 'El campo :attribute debe tener el formato :format.',
+    'after_or_equal' => 'El campo :attribute debe ser igual o posterior a :date.',
+    'url' => 'El campo :attribute debe ser una dirección HTTP o HTTPS válida.',
+    'min' => ['numeric' => 'El campo :attribute debe ser al menos :min.', 'string' => 'El campo :attribute debe tener al menos :min caracteres.'],
+    'max' => ['numeric' => 'El campo :attribute no puede superar :max.', 'string' => 'El campo :attribute no puede superar :max caracteres.'],
+    'between' => ['numeric' => 'El campo :attribute debe estar entre :min y :max.'],
+    'attributes' => [
+        'email' => 'correo', 'password' => 'contraseña', 'name' => 'nombre', 'full_name' => 'nombre completo',
+        'start_date' => 'fecha de ingreso', 'end_date' => 'fecha de retiro', 'agreed_end_date' => 'fecha pactada',
+        'worker_id' => 'trabajador', 'company_id' => 'empresa', 'job_title_id' => 'cargo',
+        'contract_type_id' => 'tipo de contrato', 'termination_reason_id' => 'motivo de retiro',
+        'basic_salary' => 'salario básico', 'transport_allowance' => 'auxilio de transporte',
+        'average_extras' => 'promedio de horas extras', 'average_surcharges' => 'promedio de recargos ordinarios',
+        'min_wage' => 'salario mínimo', 'year' => 'año', 'calculation_method' => 'cálculo de indemnización',
+        'health_percent' => 'porcentaje de salud', 'pension_percent' => 'porcentaje de pensión',
+        'interest_percent' => 'porcentaje de intereses', 'wage_source' => 'fuente del salario mínimo',
+        'transport_source' => 'fuente del auxilio de transporte',
+    ],
+];

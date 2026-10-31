@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width,initial-scale=1">
+ <title>Inicia sesión · Liquidaciones</title>
+ <link rel="preload" href="../public/fonts/inter-medium.ttf" as="font" type="font/ttf" crossorigin>
+ <link rel="stylesheet" href="../public/css/app.css?v=1a8aa2cb20">
+ <script defer src="../public/js/app.js?v=f05fbfd90e"></script>
+</head>
+<body class="login-page">
+ <main class="login-shell">
+  <div class="login-form-wrap">
+   <h1>Inicia sesión</h1>
+   <p>Ingresa a tu espacio de gestión laboral.</p>
+   
+   <form method="POST" action="#" data-loading-label="Ingresando…">
+    
+    <div class="field"><label class="field-label" for="field-email">Correo electrónico</label><input id="field-email" type="email" name="email" value="" placeholder="nombre@empresa.com" autocomplete="email" required></div>
+    <div class="field"><label class="field-label" for="field-password">Contraseña</label><input id="field-password" type="password" name="password" placeholder="Ingresa tu contraseña" autocomplete="current-password" required></div>
+    <label class="check-label"><input type="checkbox" name="remember" value="1"> Mantener sesión iniciada</label>
+    <button type="button" class="btn primary full">Iniciar sesión</button>
+   </form>
+   <p class="login-tip"><a class="linked" href="ui-preview.html">Vista previa · Ver el resumen</a></p>
+  </div>
+ </main>
+ 
+</body>
+</html>

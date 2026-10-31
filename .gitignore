@@ -7,3 +7,5 @@
 !/storage/logs/.gitkeep
 /public/hot
 .phpunit-watcher.yml
+.phpunit.cache/
+/backups/

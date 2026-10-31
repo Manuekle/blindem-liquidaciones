@@ -1,6 +1,10 @@
 .git
-.env
+.env*
 vendor
 node_modules
 docs/ui-preview.png
 storage/logs/*
+docs/screenshots
+.phpunit.cache
+storage/framework
+bootstrap/cache/*.php

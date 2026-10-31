@@ -1,41 +1,35 @@
 # Blindem · Liquidaciones
 
-Sistema de gestión de trabajadores, empresas, contratos laborales y liquidaciones en Colombia. Construido para la **prueba técnica** con estilo visual minimalista premium (sidebar, tarjetas suaves, filtros, tablas legibles, diseño responsive) y exportación a Excel.
+Sistema de gestión de trabajadores, empresas, contratos laborales y liquidaciones en Colombia. Construido para la **prueba técnica** con un sistema visual de superficies neutras, Inter medium, formularios y tablas adaptables y exportación a Excel.
 
 ## Stack
 
 - Laravel 12 / PHP 8.2+, Blade y CSS/JS vanilla (no necesita Node/Vite)
-- PostgreSQL 16 (MySQL posible cambiando `DB_CONNECTION`, excepto filtros `ILIKE`)
+- PostgreSQL 16; pruebas adicionales en SQLite. Filtros con `whereLike` compatibles con los dialectos soportados por Laravel
 - PhpSpreadsheet para XLSX con hoja de parámetros y fuentes
 - Auth nativo Laravel, roles `admin` / `collaborator`, CSRF, validaciones server-side
-- Docker y Docker Compose opcionales
+- Docker y Docker Compose para ejecución local
+
+## Funcionalidad
+
+El motor de liquidación selecciona parámetros laborales por año, calcula automáticamente los días a partir de las fechas del contrato, deriva la indemnización del motivo de retiro, separa extras de recargos y conserva la consulta/exportación histórica. Consulta [reglas de cálculo](docs/REGLAS-DE-CALCULO.md) y [operación local](docs/OPERACION-LOCAL.md).
 
 ## Inicio rápido local (con Docker)
 
-**Requisitos:** Docker Engine/Compose.
+**Requisitos:** Docker Desktop/Engine y Docker Compose. No necesitas PHP, Composer ni Node en el equipo.
 
 ```bash
-# Genera una clave APP_KEY segura (una sola vez)
-php -r 'echo "base64:".base64_encode(random_bytes(32)).PHP_EOL;' 
-# Pega el resultado en un .env que contenga APP_KEY=base64:...
-cp .env.example .env
-# En .env cambia DB_HOST=postgres, DB_DATABASE=blindem, DB_USERNAME=blindem,
-# DB_PASSWORD=blindem_local; conserva SESSION_DRIVER=file.
-# Docker Compose lee APP_KEY del .env
-
-docker compose up --build -d
-# Cargar datos de demostración SOLO EN DESARROLLO:
-docker compose exec app php artisan db:seed
+sh scripts/setup-local.sh
 ```
 
-Abre **http://localhost:8000**.
+El script crea la configuración, conserva una clave existente, construye la imagen, espera la salud de los servicios y carga la demostración local. Abre **http://127.0.0.1:8000**.
 
-Usuarios de demo (cambiar contraseña antes de exponer la aplicación a Internet):
-
-| Rol | Correo | Contraseña |
+| Rol | Correo | Contraseña demo |
 |---|---|---|
 | Administrador | `admin@blindem.test` | `Cambiar123!` |
 | Colaborador | `colaborador@blindem.test` | `Cambiar123!` |
+
+Los datos persisten en PostgreSQL y las sesiones sobreviven a recrear el contenedor. Para reconstruir cambios usa `docker compose up --build -d --wait`.
 
 ## Inicio rápido sin Docker
 
@@ -50,15 +44,9 @@ php artisan migrate --seed
 php artisan serve
 ```
 
-## Despliegue Railway
+## Arquitectura
 
-1. Crea proyecto de Railway con un servicio PostgreSQL.
-2. Sube el repositorio privado y configura el servicio con el Dockerfile del proyecto.
-3. Variables: `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://<dominio>`, `APP_KEY=<clave larga y aleatoria>` y `DB_CONNECTION=pgsql`, además de host, puerto, nombre, usuario y contraseña de PostgreSQL suministrados por Railway.
-4. El contenedor ejecuta `php artisan migrate --force` al iniciar. **No ejecutar `db:seed` en producción:** crea usuarios por un procedimiento seguro.
-5. Activa HTTPS y configura backups, políticas de contraseñas y límites antes de datos reales.
-
-> Para producción se recomienda servidor web nginx/php-fpm u Octane; `artisan serve` en el Dockerfile está orientado a demostración/entrega técnica, no a alto tráfico.
+Todo corre en local con Docker Compose: un contenedor `app` (Apache + PHP 8.3 + Laravel 12) y un contenedor `postgres` con volumen persistente. No hay despliegue en la nube ni servicios externos; el puerto solo escucha en `127.0.0.1`. El motor de cálculo es una clase pura (`LaborSettlementCalculator`) que no toca la base de datos, y `SettlementInputs` le entrega los datos del contrato y la vigencia laboral del año de corte. Detalle en [operación local](docs/OPERACION-LOCAL.md).
 
 ## Permisos
 
@@ -68,7 +56,8 @@ php artisan serve
 | Consultar trabajadores, empresas y contratos | ✓ | ✓ |
 | CRUD contratos | ✓ | ✓ |
 | Calcular, exportar XLSX y guardar liquidación | ✓ | ✓ |
-| CRUD trabajadores y empresas | — | ✓ |
+| Registrar y editar trabajadores | ✓ | ✓ |
+| Eliminar trabajadores; CRUD empresas | — | ✓ |
 | CRUD tipos documento, cargos, contratos y motivos de retiro | — | ✓ |
 
 Validación con middleware `admin` y `auth`; las acciones restringidas no se exponen a colaboradores.
@@ -81,10 +70,10 @@ app/
   Http/Middleware/       # restricción rol administrador
   Models/                # entidades Eloquent
   Services/LaborSettlementCalculator.php  # motor sin acoplamiento a base de datos
-config/liquidations.php # SMLMV 2026 y tarifas de referencia
+app/Models/LaborParameter.php # vigencias laborales administrables
 database/migrations/    # modelo relacional, claves y restricciones
 database/seeders/       # catálogos + datos de demostración
-public/css/app.css      # diseño responsive premium
+public/css/app.css      # tokens, componentes y diseño adaptable
 public/js/app.js        # interacciones ligeras
 resources/views/        # Blade / login / dashboard / formularios / detalle / liquidación
 routes/web.php          # permisos y endpoints
@@ -92,27 +81,41 @@ scripts/verify_calculator.php  # pruebas autónomas PHP
 tests/Unit/              # PHPUnit
 ```
 
+## Sistema de diseño
+
+La interfaz usa Inter medium local, tracking normal en lectura y `-0.04em` en títulos, sin logotipos ni mayúsculas sostenidas en las etiquetas. La escala es compacta: contenido de hasta 1080 px, formularios de hasta 800 px y campos de 12 px. La paleta usa fondo `#F5F5F5`, superficies `#FBFBFB` y azul `#2D56E9`; los iconos Lucide oficiales se sirven localmente con su licencia. Botones y campos comparten esquinas amplias y un acabado suave con brillo interior, bordes tenues `#ECECEE` y sombras cortas. El resumen agrupa las métricas y muestra los contratos recientes antes de los gráficos; cabecera, contenido y pie comparten alineación.
+
+- [Especificación](docs/design-system.md): tipografía, paleta, espaciado y reglas por pantalla.
+- [Guía visual](docs/design-system.html): componentes, campos, estados y ejemplo de liquidación.
+- [Resumen](docs/ui-preview.html) y [acceso](docs/login-preview.html): vistas previas con datos de demostración.
+
+Para revisar las vistas sin instalar PHP, desde la raíz del proyecto:
+
+```bash
+python3 -m http.server 8765 --bind 127.0.0.1
+```
+
+Abre `http://127.0.0.1:8765/docs/ui-preview.html`. Las vistas previas cargan `public/css/app.css` y `public/js/app.js`; no se conectan a la base de datos ni sustituyen la comprobación de los flujos de Laravel.
+
 ## Motor de liquidación
 
-Valores en COP, sin centavos (redondeo `HALF_UP`). Calcula:
+Valores enteros COP con redondeo HALF_UP por concepto. Los parámetros laborales por año incluyen salario mínimo, auxilio de referencia y tarifas. Las vigencias iniciales son 2023–2026; el administrador puede agregar las siguientes. Un año sin parámetros bloquea el cálculo.
 
-| Concepto | Fórmula |
+| Concepto | Regla |
 |---|---|
-| Cesantías | `(salario + extras + auxilio habilitado) × días cesantías / 360` |
-| Intereses | `cesantías × días cesantías × 0.12 / 360` |
-| Prima | `base prestacional × días prima / 360` |
-| Vacaciones **pendientes de disfrute** | `(salario + extras) / 30 × días de vacaciones pendientes` |
-| Salario pendiente | `salario básico / 30 × días pendientes` |
-| Transporte pendiente | `auxilio / 30 × días pendientes` |
-| Indemnización indefinido | `<10 SMLMV: 30 días primer año +20 por año adicional (proporcional); >=10: 20+15; base salarial promedio que incluye extras salariales` |
-| Indemnización fijo | `salario salarial promedio /30 × días restantes hasta finalización pactada` |
-| Salud y pensión trabajador | `4%` cada uno sobre salario pendiente; se excluyen vacaciones compensadas |
+| Cesantías | Base prestacional × días / 360 |
+| Intereses | Cesantías × días × tarifa anual / 360 |
+| Prima | Base prestacional × días / 360 |
+| Vacaciones pendientes | (Básico + recargos ordinarios) / 30 × días de descanso pendientes |
+| Días automáticos | Si se dejan en blanco: vacaciones = 15 por cada 360 días de servicio − disfrutadas; salario y auxilio = días del último mes hasta la fecha de corte |
+| Indemnización | Motivo de retiro y método asociado al tipo de contrato |
+| Salud y pensión | Tarifa anual sobre salario básico pendiente; excluye vacaciones compensadas |
 
-**Importante:** el Excel original usa `base vacaciones × 15 /720 = $39.602` pero etiqueta esos 15 como **vacaciones pendientes**. Bajo esa definición, 15 días de vacaciones causadas equivalen a `base /30 × 15 = $950.453`; el otro divisor se usa cuando la cantidad introducida representa *días de servicio causantes*, y no días de vacaciones que faltan por disfrutar.
+Las horas extras y pagos por descanso obligatorio se separan de los recargos ordinarios/nocturnos. Los registros antiguos con cifras combinadas deben revisarse antes de generar nuevos cálculos.
 
-`cesantias_days` y `prima_days` pueden definirse explícitamente; vacíos aplican los días desde el inicio de su periodo correspondiente. Los días se cuentan mediante convención 30/360; la indemnización usa antigüedad calendario real. Casos particulares (salario integral, embargos, salarios variables complejos, incapacidades, horas extras no promedio, obra/labor, pactos colectivos, retención en fuente, aportes faltantes, cesantías ya consignadas o pagos anticipados) requieren ajustes y revisión profesional.
+Los snapshots guardan identificación, entradas, tarifas, fuentes, resultado y versión. El historial permite abrir y descargar cada snapshot sin recalcularlo. Los contratos con historial se conservan.
 
-Los snapshots persistidos en `settlements` guardan **inputs, resultado y versión**, aunque se edite después el contrato.
+La plantilla tiene diferencias de unidades y criterios en vacaciones, aportes e indemnización. [Reglas y casos de aceptación](docs/REGLAS-DE-CALCULO.md) explica las decisiones y compara los importes sin perpetuar errores de la plantilla.
 
 ### Fuentes jurídicas
 
@@ -125,16 +128,19 @@ Los snapshots persistidos en `settlements` guardan **inputs, resultado y versió
 ## Pruebas
 
 ```bash
-php scripts/verify_calculator.php    # sin Laravel ni Composer
-php artisan test                      # requiere composer install
+docker compose exec -T app vendor/bin/phpunit
+docker compose exec -T postgres createdb -U blindem blindem_test
+docker compose exec -T app vendor/bin/phpunit -c phpunit.postgres.xml
+docker compose exec -T app php scripts/verify_calculator.php
+docker compose exec -T app composer audit --no-dev
 ```
+
+La base `blindem_test` se crea solo la primera vez. La clase base de pruebas bloquea bases ajenas al entorno de pruebas. Para backup y restauración de prueba consulta [operación local](docs/OPERACION-LOCAL.md).
 
 ## Limitaciones y siguientes pasos
 
-- Este proyecto entrega **código fuente**; el contenedor de autoría no dispone de Composer ni extensiones PHP de PostgreSQL/ZIP, así que no se ejecutaron migraciones ni flujo web end-to-end en este entorno.
-- No genera el video de pantalla automáticamente. En `docs/GUIA-SUSTENTACION.md` está el recorrido para grabarlo.
-- Antes de uso laboral real deben revisarse interpretaciones del contrato y autorización de deducciones con un profesional competente.
-- Para producción, añadir auditoría de cambios, MFA, recuperación segura de contraseña, pruebas de integración en PostgreSQL y rate limiting detallado.
+- Las fórmulas cubren contratos laborales ordinarios y entradas explícitas; no sustituyen un sistema completo de nómina, PILA ni casos especiales.
+- Se mantienen como mejoras independientes MFA, recuperación de contraseña y auditoría completa de cambios.
 
 ## Licencia
 

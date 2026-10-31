@@ -1,10 +1,18 @@
 <?php
+
 namespace App\Providers;
-use Illuminate\Support\ServiceProvider;
+
 use Illuminate\Support\Facades\Gate;
-class AppServiceProvider extends ServiceProvider {
- public function register(): void {}
- public function boot(): void {
-  Gate::before(function ($user, string $ability) { return $user->role === 'admin' ? true : null; });
- }
+use Illuminate\Support\ServiceProvider;
+
+class AppServiceProvider extends ServiceProvider
+{
+    public function register(): void {}
+
+    public function boot(): void
+    {
+        Gate::before(function ($user, string $ability) {
+            return $user->role === 'admin' ? true : null;
+        });
+    }
 }

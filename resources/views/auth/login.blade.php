@@ -1,1 +1,29 @@
-<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ingresar · Blindem</title><link rel="stylesheet" href="{{ asset('css/app.css') }}"></head><body class="login-page"><div class="login-shell"><div class="login-visual"><div class="login-brand"><span class="brand-mark"><span></span><span></span><span></span><span></span></span> blindem.</div><span class="eyebrow light">PLATAFORMA DE GESTIÓN LABORAL</span><h1>Todo en orden.<br>Todo más claro.</h1><p>Contratos, liquidaciones y prestaciones sociales en un solo lugar. Hecho para trabajar mejor.</p><div class="login-orbit"><div class="orbit-ring ring-one"></div><div class="orbit-ring ring-two"></div><div class="orbit-center">B<span>.</span></div><div class="orbit-card orbit-a">Contratos <strong>+24%</strong></div><div class="orbit-card orbit-b"><span>●</span> Cálculos verificables</div></div><span class="login-caption">Simplifica tus procesos. Mantén el control.</span></div><div class="login-form-side"><div class="login-form-wrap"><span class="logo-mobile">blindem.</span><span class="eyebrow">BIENVENIDO DE NUEVO</span><h2>Inicia sesión</h2><p>Ingresa con tus credenciales para continuar.</p>@if($errors->any())<div class="flash error">{{ $errors->first() }}</div>@endif<form method="POST" action="{{ route('login.submit') }}">@csrf<label>Correo electrónico<input type="email" name="email" value="{{ old('email') }}" placeholder="nombre@empresa.com" autocomplete="email" required autofocus></label><label>Contraseña<input type="password" name="password" placeholder="Ingresa tu contraseña" autocomplete="current-password" required></label><label class="check-label"><input type="checkbox" name="remember" value="1"> Mantener sesión iniciada</label><button type="submit" class="btn primary full">Iniciar sesión <span>→</span></button></form><div class="login-tip">Acceso privado para personal autorizado.</div></div></div></div></body></html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width,initial-scale=1">
+ <title>Inicia sesión · Liquidaciones</title>
+ <link rel="preload" href="{{ asset('fonts/inter-medium.ttf') }}" as="font" type="font/ttf" crossorigin>
+ <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ filemtime(public_path('css/app.css')) }}">
+ <script defer src="{{ asset('js/app.js') }}?v={{ filemtime(public_path('js/app.js')) }}"></script>
+</head>
+<body class="login-page">
+ <main class="login-shell">
+  <div class="login-form-wrap">
+   <h1>Inicia sesión</h1>
+   <p>Ingresa a tu espacio de gestión laboral.</p>
+   @if($errors->any())<div class="flash error" role="alert">{{ $errors->first() }}</div>@endif
+   <form method="POST" action="{{ route('login.submit') }}" data-loading-label="Ingresando…">
+    @csrf
+    <div class="field"><label class="field-label" for="field-email">Correo electrónico</label><input id="field-email" type="email" name="email" value="{{ old('email') }}" placeholder="nombre@empresa.com" autocomplete="email" required autofocus></div>
+    <div class="field"><label class="field-label" for="field-password">Contraseña</label><input id="field-password" type="password" name="password" placeholder="Ingresa tu contraseña" autocomplete="current-password" required></div>
+    <label class="check-label"><input type="checkbox" name="remember" value="1"> Mantener sesión iniciada</label>
+    <button type="submit" class="btn primary full">Iniciar sesión</button>
+   </form>
+   <p class="login-tip">Acceso privado para personal autorizado.</p>
+  </div>
+ </main>
+ <script type="application/json" id="validation-errors">@json($errors->messages())</script>
+</body>
+</html>
