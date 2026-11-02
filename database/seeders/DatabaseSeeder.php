@@ -16,11 +16,12 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        if (app()->environment('production')) {
+        if (app()->environment('production') && ! config('app.allow_demo_seed')) {
             throw new \LogicException('El seeder contiene datos demo. En producción usa php artisan blindem:admin.');
         }
-        User::firstOrCreate(['email' => 'admin@blindem.test'], ['name' => 'Administrador Blindem', 'password' => 'Cambiar123!', 'role' => 'admin']);
-        User::firstOrCreate(['email' => 'colaborador@blindem.test'], ['name' => 'Colaborador Blindem', 'password' => 'Cambiar123!', 'role' => 'collaborator']);
+        // Demo accounts always end with the documented password, even if one was created earlier.
+        User::updateOrCreate(['email' => 'admin@blindem.test'], ['name' => 'Administrador Blindem', 'password' => 'Cambiar123!', 'role' => 'admin']);
+        User::updateOrCreate(['email' => 'colaborador@blindem.test'], ['name' => 'Colaborador Blindem', 'password' => 'Cambiar123!', 'role' => 'collaborator']);
         $this->call(CatalogSeeder::class);
         $company = Company::firstOrCreate(['nit' => '900123456-7'], ['name' => 'Blindem Demo S.A.S.', 'email' => 'demo@blindem.test', 'address' => 'Popayán, Colombia']);
         $worker = Worker::firstOrCreate(['document_type_id' => DocumentType::where('code', 'CC')->value('id'), 'document_number' => '1098765432'], ['full_name' => 'Juan Carlos Pérez', 'email' => 'juan.perez@example.test']);

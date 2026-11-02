@@ -323,4 +323,14 @@ class SettlementWorkflowTest extends TestCase
         $this->expectException(\LogicException::class);
         (new DatabaseSeeder)->run();
     }
+
+    public function test_demo_seed_runs_in_production_when_allowed(): void
+    {
+        app()->instance('env', 'production');
+        config(['app.allow_demo_seed' => true]);
+        User::where('email', 'admin@blindem.test')->first()->update(['password' => 'otra-clave-larga']);
+        $this->artisan('db:seed', ['--force' => true])->assertSuccessful();
+        $this->assertTrue(\Illuminate\Support\Facades\Hash::check('Cambiar123!', User::where('email', 'admin@blindem.test')->value('password')));
+        $this->assertTrue(User::where('email', 'colaborador@blindem.test')->exists());
+    }
 }

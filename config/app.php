@@ -4,6 +4,8 @@ return [
     'name' => env('APP_NAME', 'Blindem Liquidaciones'),
     'env' => env('APP_ENV', 'production'),
     'debug' => (bool) env('APP_DEBUG', false),
+    // Public demo deployments load the same demo accounts and data as local.
+    'allow_demo_seed' => (bool) env('ALLOW_DEMO_SEED', false),
     'url' => env('APP_URL', 'http://localhost'),
     'timezone' => 'America/Bogota',
     'locale' => env('APP_LOCALE', 'es'),

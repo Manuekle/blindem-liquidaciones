@@ -8,9 +8,14 @@ fi
 if [ "${RUN_MIGRATIONS:-false}" = "true" ]; then
     php artisan migrate --force
 fi
-# Catalogs use firstOrCreate, so loading them on every start is safe; demo data stays out.
+# Seeders are idempotent, so running them on every start is safe.
+# Demo accounts and data load only when ALLOW_DEMO_SEED=true; otherwise just catalogs.
 if [ "${RUN_SEED:-false}" = "true" ]; then
-    php artisan db:seed --class=CatalogSeeder --force
+    if [ "${ALLOW_DEMO_SEED:-false}" = "true" ]; then
+        php artisan db:seed --force
+    else
+        php artisan db:seed --class=CatalogSeeder --force
+    fi
 fi
 # First admin for hosts without a shell. Skipped when the account already exists.
 if [ -n "${ADMIN_EMAIL:-}" ] && [ -n "${ADMIN_PASSWORD:-}" ]; then
