@@ -1863,8 +1863,13 @@ a.notif-item:hover { background: var(--surface); }
 .login-footer-repo { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; color: var(--fg-2); font: 12px/16px var(--mono); text-decoration: none; transition: color var(--dur-base); }
 .login-footer-repo:hover { color: var(--fg); }
 .login-footer-repo svg { width: 16px; height: 16px; flex: none; }
-.login-footer-stack { display: flex; align-items: center; gap: 12px; margin: 0; padding: 0; list-style: none; color: var(--fg-2); }
-.login-footer-stack :is(svg, img) { display: block; width: auto; height: 18px; }
+.login-footer-stack { display: flex; align-items: center; gap: 14px; margin: 0; padding: 0; list-style: none; color: var(--fg-3); }
+.login-footer-stack li { display: flex; transition: color var(--dur-base); }
+.login-footer-stack li:hover { color: var(--fg); }
+.login-footer-stack svg { display: block; width: 16px; height: 16px; }
+.login-footer-stack svg.is-wide { width: 29px; }
+/* Brand marks are solid shapes; the app-wide line-icon stroke would bloat them. */
+.login-footer :is(svg, path) { stroke: none; }
 .login-art { position: relative; overflow: hidden; border-radius: 0 27px 27px 0; color: var(--accent-fill); }
 :root:not([data-theme=dark]) .login-art { color: #d9ea12; }
 .login-art canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
