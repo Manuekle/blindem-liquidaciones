@@ -6,6 +6,7 @@
  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
  <meta name="csrf-token" content="{{ csrf_token() }}">
  <title>@yield('title','Resumen') · Liquidaciones</title>
+ @include('partials.seo', ['robots' => 'noindex, nofollow'])
  @include('partials.theme-script')
  @include('partials.page-transition-script')
  {{-- Runs before first paint so the saved sidebar width and collapsed state never jump. --}}

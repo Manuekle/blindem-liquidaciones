@@ -4,7 +4,9 @@
  <meta charset="utf-8">
  <meta name="viewport" content="width=device-width,initial-scale=1">
  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
- <title>@yield('title') · Liquidaciones</title>
+ <title>@yield('title') · Blindem Liquidaciones</title>
+ {{-- Only the sign-in page is indexable; password recovery screens carry tokens or add nothing to search. --}}
+ @include('partials.seo', ['robots' => request()->routeIs('login') ? null : 'noindex, nofollow'])
  @include('partials.theme-script')
  @include('partials.page-transition-script')
  <link rel="preconnect" href="https://fonts.googleapis.com">

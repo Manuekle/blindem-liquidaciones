@@ -33,6 +33,19 @@ class AccountTest extends TestCase
         $this->get('/restablecer-contrasena/abc?email=admin@blindem.test')->assertOk()->assertSee('admin@blindem.test');
     }
 
+    public function test_only_the_login_is_indexable_and_shares_a_preview(): void
+    {
+        $this->get('/login')->assertOk()
+            ->assertSee('<meta name="robots" content="index, follow, max-image-preview:large">', false)
+            ->assertSee('<meta property="og:image" content="'.asset('og-image.png').'">', false)
+            ->assertSee('<meta name="twitter:card" content="summary_large_image">', false)
+            ->assertSee('"@type":"WebApplication"', false);
+        $this->get('/olvide-contrasena')->assertOk()->assertSee('<meta name="robots" content="noindex, nofollow">', false);
+        $this->actingAs($this->admin())->get('/')->assertOk()
+            ->assertSee('<meta name="robots" content="noindex, nofollow">', false)
+            ->assertDontSee('application/ld+json', false);
+    }
+
     public function test_reset_link_is_sent_without_revealing_unknown_addresses(): void
     {
         Notification::fake();
