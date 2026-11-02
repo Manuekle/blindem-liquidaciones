@@ -8,6 +8,10 @@ fi
 if [ "${RUN_MIGRATIONS:-false}" = "true" ]; then
     php artisan migrate --force
 fi
+# Seeders use firstOrCreate, so running them on every start is safe.
+if [ "${RUN_SEED:-false}" = "true" ]; then
+    php artisan db:seed --force
+fi
 if [ "$1" = "apache2-foreground" ] && [ "${APP_ENV:-local}" = "production" ]; then
     php artisan config:cache
     php artisan route:cache
