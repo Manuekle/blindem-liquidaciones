@@ -1,0 +1,1 @@
+<span class="avatar {{ $variant ?? '' }}" aria-hidden="true">{{ collect(preg_split('/\s+/', trim($name)))->filter(fn ($part) => preg_match('/^\p{Lu}\p{L}/u', $part))->take(2)->map(fn ($part) => mb_substr($part, 0, 1))->implode('') ?: mb_strtoupper(mb_substr(trim($name), 0, 1)) }}</span>

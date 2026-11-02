@@ -1,0 +1,5 @@
+@extends('errors.layout')
+@section('title', 'Acceso restringido')
+@section('code', '403')
+@section('heading', 'No tienes acceso a esta sección')
+@section('message', 'Tu rol no permite abrir esta página. Si la necesitas, pídele acceso a un administrador.')

@@ -11,21 +11,25 @@ use App\Models\LaborParameter;
 use App\Models\TerminationReason;
 use App\Models\Worker;
 use App\Services\LaborSettlementCalculator;
+use App\Services\NotificationCenter;
+use App\Support\Table;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class ContractController
 {
+    public function __construct(private NotificationCenter $notifications) {}
+
     public function index(Request $request)
     {
         $contracts = Contract::with(['worker.documentType', 'company', 'contractType', 'jobTitle'])
-            ->when($request->filled('status'), fn ($q) => $q->where('status', $request->status))
-            ->when($request->filled('document_type'), fn ($q) => $q->whereHas('worker', fn ($w) => $w->where('document_type_id', $request->document_type)))
-            ->when($request->filled('document'), fn ($q) => $q->whereHas('worker', fn ($w) => $w->whereLike('document_number', '%'.$request->document.'%')))
-            ->when($request->filled('company'), fn ($q) => $q->where('company_id', $request->company))
-            ->when($request->filled('q'), fn ($q) => $q->whereHas('worker', fn ($w) => $w->whereLike('full_name', '%'.$request->q.'%')))
-            ->latest()->paginate(12)->withQueryString();
+            ->filter($request->only(['status', 'document_type', 'document', 'company', 'q']))
+            ->tap(fn ($query) => Table::sort($query, $request, [
+                'worker' => Worker::select('full_name')->whereColumn('workers.id', 'contracts.worker_id'),
+                'company' => Company::select('name')->whereColumn('companies.id', 'contracts.company_id'),
+                'start' => 'start_date', 'end' => 'end_date', 'status' => 'status', 'salary' => 'basic_salary',
+            ]))->paginate(Table::perPage($request))->withQueryString();
 
         return view('contracts.index', ['contracts' => $contracts, 'documentTypes' => DocumentType::all(), 'companies' => Company::orderBy('name')->get()]);
     }
@@ -91,13 +95,19 @@ class ContractController
     public function store(Request $request)
     {
         $contract = Contract::create([...$this->data($request), 'created_by' => $request->user()->id]);
+        $contract->load('worker', 'company');
+        $this->notifications->announce($request->user(), 'Nuevo contrato', $request->user()->name.' registró el contrato de '.$contract->worker->full_name.' en '.$contract->company->name.'.', route('contracts.show', $contract, false), 'file-text');
 
         return redirect()->route('contracts.show', $contract)->with('success', 'Contrato registrado.');
     }
 
     public function update(Request $request, Contract $contract)
     {
+        $wasActive = $contract->status !== 'terminated';
         $contract->update($this->data($request, $contract));
+        if ($wasActive && $contract->status === 'terminated') {
+            $this->notifications->announce($request->user(), 'Retiro registrado', $request->user()->name.' registró el retiro de '.$contract->worker->full_name.'. Falta guardar su liquidación.', route('settlements.show', $contract, false), 'log-out', 'warning');
+        }
 
         return redirect()->route('contracts.show', $contract)->with('success', 'Contrato actualizado. Los cálculos históricos guardados se conservan.');
     }

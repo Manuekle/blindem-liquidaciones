@@ -14,8 +14,20 @@ services:
   app:
     build:
       context: .
-      args:
-        INSTALL_DEV: "true"
+      target: dev
+    # Source is mounted so code changes apply without rebuilding; vendor and bootstrap/cache stay from the image.
+    volumes:
+      - ./app:/var/www/html/app
+      - ./bootstrap/app.php:/var/www/html/bootstrap/app.php
+      - ./config:/var/www/html/config
+      - ./database:/var/www/html/database
+      - ./public:/var/www/html/public
+      - ./resources:/var/www/html/resources
+      - ./routes:/var/www/html/routes
+      - ./scripts:/var/www/html/scripts
+      - ./tests:/var/www/html/tests
+      - ./phpunit.xml:/var/www/html/phpunit.xml
+      - ./phpunit.postgres.xml:/var/www/html/phpunit.postgres.xml
     ports: ["127.0.0.1:8000:8000"]
     environment:
       APP_NAME: Blindem
@@ -33,12 +45,19 @@ services:
       CACHE_STORE: file
       LOG_CHANNEL: stderr
       RUN_MIGRATIONS: "true"
-    healthcheck:
-      test: ["CMD", "php", "-r", "exit(@file_get_contents('http://127.0.0.1:'.getenv('PORT').'/up')===false?1:0);"]
-      interval: 5s
-      timeout: 3s
-      start_period: 10s
-      retries: 12
+      AI_DRIVER: "${AI_DRIVER:-simulated}"
+      OLLAMA_BASE_URL: "${OLLAMA_BASE_URL:-http://host.docker.internal:11434}"
+      OLLAMA_API_KEY: "${OLLAMA_API_KEY:-}"
+      OLLAMA_MODEL: "${OLLAMA_MODEL:-llama3.2}"
+      OLLAMA_TIMEOUT: "${OLLAMA_TIMEOUT:-120}"
+      OLLAMA_NUM_CTX: "${OLLAMA_NUM_CTX:-8192}"
+      OLLAMA_MAX_TOKENS: "${OLLAMA_MAX_TOKENS:-1200}"
+      OLLAMA_THINK: "${OLLAMA_THINK:-false}"
+      OLLAMA_EMBED_MODEL: "${OLLAMA_EMBED_MODEL:-}"
+    # Lets the container reach an Ollama server running on this machine (also on Linux).
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    # Healthcheck comes from the Dockerfile.
     depends_on:
       postgres:
         condition: service_healthy

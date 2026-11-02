@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/logo.svg" width="88" height="88" alt="Icono de Blindem Liquidaciones"></p>
+
 # Reglas y casos de aceptación del motor de liquidación
 
 Las liquidaciones corresponden a contratos laborales ordinarios del sector privado en Colombia. Los campos de promedios se calculan previamente a partir de la nómina efectiva: la aplicación no reconstruye pagos mensuales ni liquida salario integral, incapacidades, embargos, retención o aportes patronales.
@@ -73,3 +75,5 @@ Cada snapshot nuevo guarda nombres, documentos, empresa, cargo, tipo/motivo, fec
 - [Auxilio 2024, Decreto 2293 de 2023](https://www.cancilleria.gov.co/normograma/compilacion/docs/decreto_2293_2023.htm).
 - [SMLMV 2025, Decreto 1572 de 2024](https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=257156).
 - [SMLMV 2026, Decreto 159 de 2026](https://normativa.colpensiones.gov.co/compilacion/docs/decreto_0159_2026.htm).
+- [Auxilio 2026, Decreto 1470 de 2025](https://cancilleria.gov.co/normograma/compilacion/docs/decreto_1470_2025.htm).
+- [Ley 2466 de 2025, reforma laboral](https://normativa.colpensiones.gov.co/compilacion/docs/ley_2466_2025.htm).

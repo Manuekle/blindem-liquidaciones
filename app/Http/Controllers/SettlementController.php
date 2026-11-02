@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Contract;
 use App\Models\Settlement;
 use App\Services\LaborSettlementCalculator;
+use App\Services\NotificationCenter;
 use App\Services\SettlementInputs;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -17,7 +18,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SettlementController
 {
-    public function __construct(private LaborSettlementCalculator $calculator, private SettlementInputs $inputFactory) {}
+    public function __construct(private LaborSettlementCalculator $calculator, private SettlementInputs $inputFactory, private NotificationCenter $notifications) {}
 
     private function context(Contract $c): array
     {
@@ -64,7 +65,9 @@ class SettlementController
         if ($preview['error']) {
             return back()->with('error', $preview['error']);
         }
-        $contract->settlements()->create(['calculated_by' => $request->user()->id, 'calculation_version' => LaborSettlementCalculator::VERSION, 'inputs' => $preview['inputs'], 'result' => $preview['result'], 'net_amount' => $preview['result']['net']]);
+        $settlement = $contract->settlements()->create(['calculated_by' => $request->user()->id, 'calculation_version' => LaborSettlementCalculator::VERSION, 'inputs' => $preview['inputs'], 'result' => $preview['result'], 'net_amount' => $preview['result']['net']]);
+
+        $this->notifications->announce($request->user(), 'Liquidación guardada', $request->user()->name.' guardó la liquidación de '.$contract->worker->full_name.' por $'.number_format($settlement->net_amount, 0, ',', '.').'.', route('settlements.history', [$contract, $settlement], false), 'wallet', 'success');
 
         return back()->with('success', 'Liquidación guardada en el historial con su fotografía de cálculo.');
     }

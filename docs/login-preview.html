@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
+<head><script>(() => { let saved = null; try { saved = localStorage.getItem('theme'); } catch (error) {} document.documentElement.dataset.theme = (saved ? saved === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light'; })();</script>
  <meta charset="utf-8">
  <meta name="viewport" content="width=device-width,initial-scale=1">
  <title>Inicia sesión · Liquidaciones</title>
  <link rel="preload" href="../public/fonts/inter-medium.ttf" as="font" type="font/ttf" crossorigin>
- <link rel="stylesheet" href="../public/css/app.css?v=1a8aa2cb20">
- <script defer src="../public/js/app.js?v=f05fbfd90e"></script>
+ <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=SN+Pro:wght@500;600&display=swap"><link rel="stylesheet" href="../public/css/app.css?v=1a8aa2cb20">
+ <script defer src="../public/js/app.js?v=f05fbfd90e"></script><script defer src="../public/js/ui.js"></script><script type="module" src="../public/js/validation.js"></script>
 </head>
 <body class="login-page">
  <main class="login-shell">

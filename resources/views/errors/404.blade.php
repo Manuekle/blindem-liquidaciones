@@ -1,0 +1,6 @@
+@extends('errors.layout')
+@section('title', 'Página no encontrada')
+@section('code', '404')
+@section('heading', 'Esta página no existe')
+@section('message', 'La dirección puede estar mal escrita o el registro ya fue eliminado. Revisa el enlace o vuelve al resumen.')
+@section('hint', 'Si llegaste desde un enlace guardado, búscalo de nuevo con ⌘K.')

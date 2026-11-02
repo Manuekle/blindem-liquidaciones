@@ -8,3 +8,16 @@ docs/screenshots
 .phpunit.cache
 storage/framework
 bootstrap/cache/*.php
+.DS_Store
+**/.DS_Store
+.claude
+.agents
+.github
+tests
+docs
+transitions
+backups
+skills-lock.json
+docker-compose.yml
+Dockerfile
+README.md

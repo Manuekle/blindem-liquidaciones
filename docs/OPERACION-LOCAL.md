@@ -1,16 +1,19 @@
+<p align="center"><img src="assets/logo.svg" width="88" height="88" alt="Icono de Blindem Liquidaciones"></p>
+
 # Operación local
 
 La aplicación corre completamente en el equipo: Laravel 12 sobre Apache/PHP 8.3 y PostgreSQL 16, orquestados con Docker Compose. No depende de servicios en la nube y el puerto se publica solamente en `127.0.0.1:8000`.
 
 ## Arquitectura
 
-```text
-Navegador ── http://127.0.0.1:8000 ──▶ contenedor app (Apache + PHP 8.3 + Laravel 12)
-                                            │  Blade + CSS/JS sin build
-                                            │  LaborSettlementCalculator (motor puro, sin BD)
-                                            ▼
-                                       contenedor postgres (volumen blindem_pg)
+```mermaid
+flowchart LR
+    browser["Navegador"] -- "127.0.0.1:8000" --> app["contenedor app<br/><small>Apache + PHP 8.3 + Laravel 12<br/>Blade + CSS/JS sin build</small>"]
+    app --> pg[("contenedor postgres<br/><small>volumen blindem_pg</small>")]
+    app -. "IA opcional" .-> ollama["Ollama en el equipo"]
 ```
+
+El detalle de imágenes, red, base de datos y modelos está en [INFRAESTRUCTURA.md](INFRAESTRUCTURA.md).
 
 - **Datos:** PostgreSQL en un volumen Docker; también guarda las sesiones.
 - **Motor de cálculo:** `app/Services/LaborSettlementCalculator.php` recibe un arreglo y devuelve el resultado; no consulta la base de datos. `SettlementInputs` arma esas entradas desde el contrato y la vigencia laboral del año de corte.
@@ -31,6 +34,31 @@ docker compose up --build -d --wait
 ```
 
 No uses `down -v` para actualizar: elimina el volumen de datos. Una instalación existente con el campo combinado de extras/recargos debe editar esos contratos y confirmar la separación antes de generar nuevos cálculos. Las liquidaciones anteriores siguen disponibles.
+
+## Asistente de IA
+
+Por defecto el asistente usa reglas locales (`AI_DRIVER=simulated`). Para activar Ollama:
+
+1. Inicia el servicio y descarga los modelos:
+
+   ```bash
+   brew services start ollama
+   ```
+
+   ```bash
+   ollama pull qwen3.5:4b-mlx && ollama pull qwen3-embedding:0.6b
+   ```
+
+2. En `.env`: `AI_DRIVER=ollama`, `OLLAMA_MODEL=qwen3.5:4b-mlx`, `OLLAMA_EMBED_MODEL=qwen3-embedding:0.6b`.
+3. Recrea el contenedor para que lea los valores:
+
+   ```bash
+   docker compose up -d --wait
+   ```
+
+La etiqueta «IA · Ollama · qwen3.5:4b-mlx» en la interfaz confirma el cambio. Errores frecuentes y su solución en [INFRAESTRUCTURA.md § 3.5](INFRAESTRUCTURA.md#35-diagnóstico).
+
+## Administradores
 
 Para crear un administrador adicional sin datos demo:
 

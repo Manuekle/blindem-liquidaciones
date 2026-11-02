@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company;
+use App\Models\Contract;
+use App\Support\Table;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -11,9 +13,13 @@ class CompanyController
     public function index(Request $request)
     {
         $search = trim((string) $request->query('q', ''));
-        $companies = Company::withCount('contracts')->when($search, fn ($q) => $q->where(fn ($q) => $q->whereLike('name', "%{$search}%")->orWhereLike('nit', "%{$search}%")))->latest()->paginate(12)->withQueryString();
+        $companies = Company::withCount(['contracts', 'contracts as active_contracts_count' => fn ($q) => $q->where('status', 'active')])->when($search, fn ($q) => $q->where(fn ($q) => $q->whereLike('name', "%{$search}%")->orWhereLike('nit', "%{$search}%")))
+            ->tap(fn ($query) => Table::sort($query, $request, ['name' => 'name', 'nit' => 'nit', 'email' => 'email', 'contracts' => 'contracts_count']))
+            ->paginate(Table::perPage($request))->withQueryString();
 
-        return view('companies.index', compact('companies', 'search'));
+        $summary = ['total' => Company::count(), 'contracts' => Contract::count(), 'active' => Contract::where('status', 'active')->count()];
+
+        return view('companies.index', compact('companies', 'search', 'summary'));
     }
 
     public function create()

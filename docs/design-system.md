@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/logo.svg" width="88" height="88" alt="Icono de Blindem Liquidaciones"></p>
+
 # Sistema de diseño de liquidaciones
 
 ## Objetivo
@@ -6,7 +8,7 @@ Una interfaz de trabajo para consultar personas y contratos, revisar una liquida
 
 ## Principios
 
-- Inter como única familia, con peso medium real (`500`) en todos los roles. Jerarquía por tamaño, color y espacio.
+- Hanken Grotesk (Google Fonts) según Lime: cuerpo 400 a 14 px, etiquetas 500, títulos 600 con tracking `-0.01em`; leyendas a 12 px. Los identificadores (documentos, nit, fechas en tablas, códigos) usan la monoespaciada del sistema (`--mono`).
 - Texto, navegación, etiquetas, botones y tablas con tracking `0`. Títulos y cifras destacadas con tracking `-0.04em`.
 - Escritura en estilo oración, sin encabezados, etiquetas o llamadas en mayúsculas sostenidas. Las etiquetas de interfaz usan «nit», «documento», «pesos colombianos» y «excel». Los nombres y datos guardados conservan su escritura original.
 - Sin logos, isotipos, monogramas, marcas de terceros ni wordmarks. El identificador del espacio es el texto funcional «Liquidaciones», con el mismo tratamiento que la navegación.
@@ -41,32 +43,25 @@ Se usa el primer enfoque. Su rasgo propio es la claridad del expediente laboral:
 
 ### Color
 
-La paleta usa `#F5F5F5` como fondo, `#FBFBFB` como superficie y `#2D56E9` como azul principal. Los tonos de presión y foco suave se derivan del azul; los colores semánticos se conservan suaves. Los bordes son tenues y el redondeado amplio.
+La interfaz sigue el sistema **Lime** de design.how (tema claro), portado a CSS sin React ni Tailwind, con patrones de navegación y tablas inspirados en Beautiful UI. Los tokens viven en `public/css/app.css` con sus nombres de Lime; los alias antiguos (`--primary`, `--secondary`, `--border`…) apuntan a ellos.
 
 | Token | Valor | Uso |
 | --- | --- | --- |
-| `primary` | `#2D56E9` | Acción principal, casillas e interruptores activos |
-| `primary-focus` | `#2D56E9` | Borde de foco |
-| `primary-link` | `#2D56E9` | Enlaces y acentos de datos |
-| `primary-pressed` | `#2243BF` | Acción presionada y base del relieve azul |
-| `primary-tint` | `#EDF1FF` | Halo de foco y superficies de apoyo |
-| `on-primary` | `#FFFFFF` | Texto e iconos sobre acciones azules |
-| `ink` | `#000000` | Títulos, contenido y cifras |
-| `body-secondary` | `#636363` | Descripciones y metadatos |
-| `muted` | `#A3A3A3` | Placeholders, iconos auxiliares y controles deshabilitados |
-| `surface` | `#FBFBFB` | Paneles y navegación |
-| `surface-warm` | `#F5F5F5` | Fondo y superficie secundaria neutra |
-| `hairline` | `#ECECEE` | Bordes y separadores |
-| `accent-amber` | `#FFB110` | Observaciones |
-| `accent-amber-deep` | `#E89D01` | Detalles de observación |
-| `accent-coral` | `#F64932` | Contorno destructivo y de error |
-| `accent-red` | `#E32D14` | Error, deducciones y eliminación |
-| `success` | `#1AAE39` | Indicador de estado activo y gráfico de estado |
-| `success-tint` | `#D0F4D8` | Superficie de éxito con texto negro |
-| `accent-indigo` | `#1313BA` | Texto de etiquetas lavanda |
-| `chip-lavender` | `#EADBFA` | Superficie de etiquetas de recuento |
+| `page` | `#FFFFFF` | Fondo de la aplicación |
+| `surface` / `surface-2` / `surface-3` | `#F6F5F2` / `#EFEEEA` / `#E6E4DF` | Navegación, bloques de métricas, hover y estado activo |
+| `field` | `#F6F5F2` | Relleno de inputs, selects y fechas (radio 12 px) |
+| `fg` / `fg-2` / `fg-3` | `#0F0F0D` / `#4A4943` / `#6B6A63` | Texto principal, secundario y leyendas |
+| `line` / `line-strong` | `#E6E4DF` / `#CFCDC6` | Separadores / bordes de botones |
+| `accent-fill` | `#E4F222` | Único botón principal por vista (con brillo), día elegido, progreso |
+| `accent-wash` | `#F5F9C4` | Total final de la liquidación y cifra de dinero destacada |
+| `accent-line` | `#7C8700` | Anillo de foco de 2 px |
+| `success` / `success-text` | `#1E8E4A` / `#17703A` | Estado activo (punto + palabra) |
+| `danger` / `danger-text` / `danger-tint` | `#D93636` / `#B42323` / `#FDEBEB` | Deducciones, errores y eliminación |
+| `warn-text` / `warn-tint` | `#8A5200` / `#FFF3D6` | Observaciones de cálculo |
 
-Los alias del CSS (`bg`, `text`, `secondary`, `border`, etc.) remiten a estos tokens. Los degradados y las sombras añaden profundidad sutil. El ámbar, el coral, el verde y el lavanda se reservan para estados concretos; no se introducen en cada panel como decoración. Los estados siempre incluyen texto.
+Reglas de Lime aplicadas: un solo botón `primary` (lima con brillo) por vista y las demás acciones `solid`, `ghost` u outline; nunca texto blanco sobre lima; el destructivo relleno solo en el botón de confirmar del diálogo, y los disparadores de eliminar son outline con texto rojo; los botones son píldoras (40 px) y los campos van rellenos; los estados se muestran como punto y palabra; las tablas no llevan filas alternas ni cuadrícula.
+
+La liquidación conserva la **colilla de pago**: el neto grande y un talón perforado con devengado, deducciones y neto.
 
 ### Tipografía
 
@@ -143,7 +138,7 @@ La barra lateral no lleva logo ni tarjeta promocional. La campana y el chevron d
 | Paginación | Cantidad mostrada y página actual junto al par anterior/siguiente, unidos en una única superficie con separador interior. Extremos claramente deshabilitados |
 | Interruptor y casilla | Casilla semántica nativa de 16 × 16 px con cara blanca, borde suave, marca Lucide blanca sobre azul y foco azul. El área de su etiqueta mide 32 px de alto en móvil; el dibujo de la casilla conserva su tamaño. Interruptor con canal ligeramente hundido y pieza móvil elevada; activado en azul. Conservan valores, etiquetas y envío existentes |
 
-Los iconos son Lucide oficiales, funcionales, lineales y de un solo color: cuadrícula 24 × 24, trazo 2 y representación habitual de 14 px. Se sirve una selección local de `lucide-static` 1.64.0 desde `public/icons/lucide.svg`, con licencia ISC incluida. Los campos de fecha conservan su selector nativo con un calendario Lucide decorativo; los selectores usan el chevron Lucide. Los botones solo con icono tienen nombre accesible. No se incorporan logos ni avatares decorativos.
+Los iconos son Hugeicons oficiales, estilo Stroke Rounded gratuito: funcionales, lineales y de un solo color, en cuadrícula 24 × 24, trazo 2 (lo fija `svg` en el CSS) y representación habitual de 14 px. Se sirve una selección local de `@hugeicons/core-free-icons` 4.4.0 desde `public/icons/hugeicons.svg`, con licencia MIT incluida; los ids de los símbolos son nombres propios de la app (`trash-2`, `users-round`…) y cada uno anota el icono de origen. En la barra lateral los iconos combinan trazo y relleno: el trazo oficial sobre un tinte del color del texto en cada forma cerrada (18 %, 24 % al pasar el cursor y 32 % en la sección activa). Los campos de fecha conservan su selector nativo con un calendario decorativo; los selectores usan el chevron de Hugeicons. Los botones solo con icono tienen nombre accesible. No se incorporan logos ni avatares decorativos.
 
 ## Aplicación por pantalla
 
@@ -180,6 +175,51 @@ Listado editable y formulario de creación comparten campos y botones. Controles
 Los enlaces navegan y los botones ejecutan acciones. El foco de teclado siempre es visible. Cada icono accionable tiene un nombre accesible. Los errores del servidor aparecen debajo del control, fuera de su etiqueta, asociados mediante `aria-describedby` y `aria-invalid`. Al editar o restablecer el formulario se retira el error correspondiente al valor anterior, conservando las ayudas asociadas. El servidor mantiene la validación final. Los prefijos monetarios se ocultan del nombre accesible. El menú móvil debe poder abrirse y cerrarse por teclado y anunciar su estado.
 
 Se usa `body-secondary` para texto auxiliar de lectura; `muted` se reserva para placeholders, iconos auxiliares y estados deshabilitados. Las etiquetas persistentes usan texto negro y los estados suaves conservan texto oscuro. Se revisan anchos de 1440, 1024, 768 y 390 px, navegación con teclado, zoom al 200 %, nombres largos, importes extensos, errores y estados sin datos.
+
+## Tipografía de títulos y código
+
+Los títulos (`h1`–`h3`, nombre del espacio y marca de acceso) usan SN Pro 600 (`--font-title`); los identificadores y códigos (`.mono`) usan Geist Mono (`--mono`). Ambas se cargan desde Google Fonts junto con Hanken Grotesk, que sigue siendo la fuente del texto.
+
+## Estructura y desplazamiento
+
+El menú lateral y la barra superior quedan fijos en la ventana; solo `.main-scroll` (contenido y pie) se desplaza, con su propio rebote contenido (`overscroll-behavior`). El documento no se desplaza. `scrollbar-gutter: stable` evita saltos de ancho entre páginas con y sin barra.
+
+## Cifras y tracking
+
+Montos, fechas, documentos, NIT y conteos usan Geist Mono (`.mono` o `.num`, 0,92 em del texto que los rodea; 13 px en tablas). Las cifras grandes (resumen, liquidación, salario, métricas) también, con peso 500. Los encabezados de columna numérica conservan la fuente de texto.
+
+- `--title-tracking-tight: -0.04em`: títulos de página (`h1`), título del acceso, diálogo de confirmación y cifras grandes.
+- `--title-tracking: -0.01em`: títulos de sección (`h2`, `h3`), nombre del espacio y marca.
+
+## Resumen (dashboard)
+
+El resumen se organiza como un comprobante, no como una fila de tarjetas iguales:
+
+- **Recibo de liquidado** (`.dash-ledger`): cifra histórica grande en Geist Mono, lo liquidado en el mes y el promedio, y la proporción de contratos activos frente a retirados. A la derecha, un talón perforado (`.dash-stub`) con los totales y líneas de puntos, el mismo motivo del comprobante de liquidación.
+- **Pendientes** (`.dash-queue`): retiros sin liquidar (enlazan a la liquidación) y contratos a término fijo que vencen en 30 días, con los días restantes; en rojo si faltan 7 o menos.
+- Debajo, las sugerencias de IA, los contratos recientes y la actividad de seis meses, con el mes en curso resaltado en lima.
+
+## Validación, avisos y carga
+
+- **Validación (zod):** `public/js/validation.js` arma un esquema zod por formulario a partir de los atributos de cada campo (`required`, `type`, `min`, `max`, `step`, `minlength`, `maxlength`, `pattern`). Los globos nativos se desactivan (`novalidate`) y los mensajes aparecen en español bajo el campo. Un campo con error queda rojo, también con el foco. Se valida al enviar y, después, cada vez que un campo pierde el foco; al editar, el mensaje desaparece. zod 3.23.8 está incluido en `public/js/vendor/` (MIT), sin paso de compilación. El servidor sigue teniendo la última palabra.
+- **Avisos (toasts):** `window.toast({ type, title, message })` con tipos `success`, `error`, `warning` e `info`. Los mensajes de sesión (`success`, `error`) y los errores de validación del servidor se muestran así. Se apilan hasta tres, se pausan al pasar el cursor o con la pestaña oculta, y entran y salen con la transición *toast* de transitions.dev.
+- **Esqueletos:** si la página siguiente tarda más de 140 ms, el contenido se reemplaza por un esqueleto con la forma del destino (resumen, listado, formulario o detalle). Los filtros (formularios GET) hacen lo mismo; los formularios que guardan mantienen su botón de carga.
+
+## Modo oscuro
+
+`:root[data-theme=dark]` redefine los mismos tokens con una paleta propia de neutros cálidos (no es una inversión del tema claro); los componentes no cambian. El atributo es el único mecanismo de cambio: `partials/theme-script` lo fija antes del primer pintado con la preferencia guardada o, si no hay, la del sistema, y la página sigue los cambios del sistema mientras no haya una elección guardada. El interruptor «Modo oscuro» al pie del menú lateral (`#theme-toggle`, `aria-pressed`) guarda la elección en `localStorage` y cambia el icono con `.t-icon-swap`. El cambio es un fundido de toda la página de 400 ms (`--theme-fade-dur`, View Transitions); sin soporte o con movimiento reducido el cambio es inmediato. Dentro del fundido, `.theme-switching` desactiva las demás transiciones para que todos los colores cambien a la vez. El acento lima conserva texto oscuro en ambos temas.
+
+## Movimiento
+
+Las transiciones siguen la escala de [transitions.dev](https://transitions.dev) declarada en `:root` (`--duration-*`, `--ease-smooth-out`, `--dropdown-*`, `--modal-*`, `--shake-*`, `--shimmer-*`). El JavaScript lee esas duraciones con `getComputedStyle`, de modo que un cambio de token mantiene sincronizados CSS y temporizadores.
+
+- Selectores y calendario (`.t-dropdown`): crecen desde el campo (`data-origin` arriba o abajo según el espacio) en 250 ms y se cierran en 150 ms. Si se abren con teclado aparecen sin animación; el cierre siempre se anima.
+- Confirmación (`.t-modal`): escala desde 0,96 al centro con fundido del fondo; botones, Escape y clic fuera reproducen el cierre antes de cerrar el `<dialog>`.
+- Envío rechazado: cada campo inválido se sacude (`.t-input.is-shaking`, 280 ms) y el mensaje persiste hasta que se edita el valor.
+- Envío en curso: la etiqueta de carga del botón usa `.t-shimmer`.
+- Presión: botones y controles con icono escalan a 0,97–0,98. Las casillas dibujan la marca de izquierda a derecha; los avisos entran con un desplazamiento de 4 px.
+- Menú móvil: `transform` con curva de cajón (`--ease-drawer`) y fondo con fundido.
+- Solo se animan `transform`, `opacity`, `scale` y `clip-path`, nunca `transition: all`. `prefers-reduced-motion: reduce` desactiva todo el movimiento.
 
 ## Integración y comprobación
 

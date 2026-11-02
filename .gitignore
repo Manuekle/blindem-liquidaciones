@@ -9,3 +9,20 @@
 .phpunit-watcher.yml
 .phpunit.cache/
 /backups/
+
+# Archivos locales del sistema y del editor
+.DS_Store
+
+# Herramientas de agentes y asistentes de código (no forman parte de la app)
+/.agents/
+/.claude/
+/.cursor/
+/.codex/
+/transitions/
+skills-lock.json
+AGENTS.md
+CLAUDE.md
+.mcp.json
+
+# Material personal de la sustentación
+/docs/GUIA-SUSTENTACION.md

@@ -1,0 +1,5 @@
+@extends('errors.layout')
+@section('title', 'Error del servidor')
+@section('code', '500')
+@section('heading', 'Algo salió mal de nuestro lado')
+@section('message', 'No pudimos completar la solicitud. Tus datos guardados están a salvo; inténtalo de nuevo en unos segundos.')

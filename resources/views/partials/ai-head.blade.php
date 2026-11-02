@@ -1,0 +1,1 @@
+<div class="surface-head"><div class="ai-title"><span class="ai-mark" aria-hidden="true"><svg class="icon" focusable="false" viewBox="0 0 24 24"><use href="{{ $iconSprite }}#sparkles"/></svg></span><div><h2>{{ $title }}</h2><p>{{ $description }}</p></div></div><span class="ai-badge" data-ai-provider>IA · {{ app(\App\Services\Ai\AiClient::class)->label() }}</span></div>

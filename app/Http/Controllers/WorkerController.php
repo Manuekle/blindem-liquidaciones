@@ -4,17 +4,25 @@ namespace App\Http\Controllers;
 
 use App\Models\DocumentType;
 use App\Models\Worker;
+use App\Services\NotificationCenter;
+use App\Support\Table;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 class WorkerController
 {
+    public function __construct(private NotificationCenter $notifications) {}
+
     public function index(Request $request)
     {
         $search = trim((string) $request->query('q', ''));
-        $workers = Worker::with('documentType')->withCount('contracts')->when($search, fn ($q) => $q->where(fn ($q) => $q->whereLike('full_name', "%{$search}%")->orWhereLike('document_number', "%{$search}%")))->latest()->paginate(12)->withQueryString();
+        $workers = Worker::with('documentType')->withCount(['contracts', 'contracts as active_contracts_count' => fn ($q) => $q->where('status', 'active')])->when($search, fn ($q) => $q->where(fn ($q) => $q->whereLike('full_name', "%{$search}%")->orWhereLike('document_number', "%{$search}%")))
+            ->tap(fn ($query) => Table::sort($query, $request, ['name' => 'full_name', 'email' => 'email', 'status' => 'active_contracts_count', 'contracts' => 'contracts_count']))
+            ->paginate(Table::perPage($request))->withQueryString();
 
-        return view('workers.index', compact('workers', 'search'));
+        $summary = ['total' => Worker::count(), 'active' => Worker::whereHas('contracts', fn ($q) => $q->where('status', 'active'))->count(), 'without_email' => Worker::whereNull('email')->orWhere('email', '')->count()];
+
+        return view('workers.index', compact('workers', 'search', 'summary'));
     }
 
     public function show(Worker $worker)
@@ -42,6 +50,7 @@ class WorkerController
     public function store(Request $request)
     {
         $worker = Worker::create($this->data($request));
+        $this->notifications->announce($request->user(), 'Nuevo trabajador', $request->user()->name.' registró a '.$worker->full_name.'.', route('workers.show', $worker, false), 'users-round');
 
         return redirect()->route('workers.show', $worker)->with('success', 'Trabajador registrado correctamente.');
     }

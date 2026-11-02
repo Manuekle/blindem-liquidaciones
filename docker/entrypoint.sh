@@ -10,6 +10,8 @@ if [ "${RUN_MIGRATIONS:-false}" = "true" ]; then
 fi
 if [ "$1" = "apache2-foreground" ] && [ "${APP_ENV:-local}" = "production" ]; then
     php artisan config:cache
+    php artisan route:cache
+    php artisan event:cache
     php artisan view:cache
 fi
 exec docker-php-entrypoint "$@"

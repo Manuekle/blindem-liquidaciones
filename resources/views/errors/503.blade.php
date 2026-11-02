@@ -1,0 +1,5 @@
+@extends('errors.layout')
+@section('title', 'En mantenimiento')
+@section('code', '503')
+@section('heading', 'Volvemos enseguida')
+@section('message', 'Estamos aplicando una actualización. La aplicación vuelve a estar disponible en unos minutos.')

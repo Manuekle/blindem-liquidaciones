@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width,initial-scale=1">
+ <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+ <title>Sin conexión · Liquidaciones</title>
+ <!-- Served by sw.js when a page cannot be reached; everything it needs is precached there. -->
+ <script>
+ (() => {
+  let saved = null;
+  try { saved = localStorage.getItem('theme'); } catch (error) {}
+  const dark = saved ? saved === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+ })();
+ </script>
+ <link rel="stylesheet" href="/css/app.css">
+ <script defer src="/js/halftone.js"></script>
+</head>
+<body class="login-page error-page">
+ <main class="login-shell">
+  <section class="login-form-wrap error-body">
+   <a class="login-brand" href="/"><span class="brand-mark" aria-hidden="true"><svg class="logo-mark" focusable="false" viewBox="0 0 697 462"><use href="/icons/hugeicons.svg#logo"/></svg></span><span><b>Liquidaciones</b><small>Gestión laboral · Colombia</small></span></a>
+   <p class="error-code"><span class="offline-dot" aria-hidden="true"></span> Sin conexión</p>
+   <h1>No hay conexión</h1>
+   <p class="login-lede">No pudimos llegar al servidor. Revisa tu red o que la aplicación siga en ejecución; volveremos a intentarlo apenas regrese la conexión.</p>
+   <div class="error-actions">
+    <button type="button" class="btn solid" id="retry">Reintentar</button>
+   </div>
+   <p class="login-tip" id="status" role="status" aria-live="polite">Esperando conexión…</p>
+  </section>
+  <div class="login-art" aria-hidden="true">
+   <canvas data-halftone></canvas>
+   <div class="error-figure is-word">offline</div>
+  </div>
+ </main>
+ <script>
+ (() => {
+  const status = document.getElementById('status');
+  const retry = () => {
+   status.textContent = 'Reintentando…';
+   fetch(location.href, { method: 'HEAD', cache: 'no-store' }).then(() => location.reload()).catch(() => { status.textContent = 'Todavía sin conexión. Lo intentaremos de nuevo automáticamente.'; });
+  };
+  document.getElementById('retry').addEventListener('click', retry);
+  addEventListener('online', retry);
+  setInterval(() => { if (navigator.onLine) retry(); }, 15000);
+ })();
+ </script>
+</body>
+</html>

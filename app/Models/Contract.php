@@ -43,6 +43,17 @@ class Contract extends Model
         return $this->hasMany(Settlement::class);
     }
 
+    /** The contract list filters (status, company, document_type, document, q), shared with the assistant. */
+    public function scopeFilter($query, array $filters)
+    {
+        return $query
+            ->when($filters['status'] ?? null, fn ($q, $status) => $q->where('status', $status))
+            ->when($filters['document_type'] ?? null, fn ($q, $type) => $q->whereHas('worker', fn ($w) => $w->where('document_type_id', $type)))
+            ->when($filters['document'] ?? null, fn ($q, $document) => $q->whereHas('worker', fn ($w) => $w->whereLike('document_number', '%'.$document.'%')))
+            ->when($filters['company'] ?? null, fn ($q, $company) => $q->where('company_id', $company))
+            ->when($filters['q'] ?? null, fn ($q, $name) => $q->whereHas('worker', fn ($w) => $w->whereLike('full_name', '%'.$name.'%')));
+    }
+
     public function getDisplayStatusAttribute(): string
     {
         return $this->status === 'terminated' ? 'Retirado' : 'Activo';
