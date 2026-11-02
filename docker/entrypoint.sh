@@ -13,6 +13,7 @@ fi
 if [ "${RUN_SEED:-false}" = "true" ]; then
     if [ "${ALLOW_DEMO_SEED:-false}" = "true" ]; then
         php artisan db:seed --force
+        php artisan db:seed --class=DemoSettlementSeeder --force
     else
         php artisan db:seed --class=CatalogSeeder --force
     fi

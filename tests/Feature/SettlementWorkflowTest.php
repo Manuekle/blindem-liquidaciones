@@ -14,6 +14,7 @@ use App\Services\LaborSettlementCalculator;
 use App\Services\SettlementInputs;
 use Database\Seeders\CatalogSeeder;
 use Database\Seeders\DatabaseSeeder;
+use Database\Seeders\DemoSettlementSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -330,7 +331,16 @@ class SettlementWorkflowTest extends TestCase
         config(['app.allow_demo_seed' => true]);
         User::where('email', 'admin@blindem.test')->first()->update(['password' => 'otra-clave-larga']);
         $this->artisan('db:seed', ['--force' => true])->assertSuccessful();
-        $this->assertTrue(\Illuminate\Support\Facades\Hash::check('Cambiar123!', User::where('email', 'admin@blindem.test')->value('password')));
+        $this->assertTrue(Hash::check('Cambiar123!', User::where('email', 'admin@blindem.test')->value('password')));
         $this->assertTrue(User::where('email', 'colaborador@blindem.test')->exists());
+    }
+
+    public function test_demo_settlements_seed_once_per_terminated_contract(): void
+    {
+        $terminated = Contract::where('status', 'terminated')->count();
+        $this->seed(DemoSettlementSeeder::class);
+        $this->seed(DemoSettlementSeeder::class);
+        $this->assertSame($terminated, Settlement::count());
+        $this->assertGreaterThan(0, Settlement::sum('net_amount'));
     }
 }

@@ -11,4 +11,5 @@
  <button type="submit" class="btn solid full">Iniciar sesión</button>
 </form>
 <p class="login-tip">Acceso privado para personal autorizado.</p>
+@include('partials.login-footer')
 @endsection

@@ -1859,6 +1859,12 @@ a.notif-item:hover { background: var(--surface); }
 .login-form-wrap > .flash { margin-bottom: var(--space-4); }
 .login-page .btn.full { height: 44px; margin-top: var(--space-1); }
 .login-form-wrap > .login-tip { margin-top: var(--space-5); font-family: var(--mono); font-size: 11px; }
+.login-footer { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-top: var(--space-6); padding-top: var(--space-4); border-top: 1px solid var(--line); }
+.login-footer-repo { display: inline-flex; align-items: center; gap: 8px; color: var(--fg-2); font: 12px/16px var(--mono); text-decoration: none; transition: color var(--dur-base); }
+.login-footer-repo:hover { color: var(--fg); }
+.login-footer-repo svg { width: 16px; height: 16px; flex: none; }
+.login-footer-stack { display: flex; align-items: center; gap: 12px; margin: 0; padding: 0; list-style: none; color: var(--fg-2); }
+.login-footer-stack svg { display: block; width: auto; height: 18px; }
 .login-art { position: relative; overflow: hidden; border-radius: 0 27px 27px 0; color: var(--accent-fill); }
 :root:not([data-theme=dark]) .login-art { color: #d9ea12; }
 .login-art canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }

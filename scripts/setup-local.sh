@@ -17,4 +17,5 @@ echo "Configuración local lista; la clave no se muestra.\n";
 '
 docker compose up --build -d --wait
 docker compose exec -T app php artisan db:seed
+docker compose exec -T app php artisan db:seed --class=DemoSettlementSeeder
 printf '%s\n' 'Aplicación local: http://127.0.0.1:8000'
