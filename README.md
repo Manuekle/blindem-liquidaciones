@@ -16,7 +16,7 @@ Registra trabajadores, empresas y contratos; calcula cesantías, intereses, prim
 ![Sin build](https://img.shields.io/badge/frontend-sin%20build-e4f222)
 ![Pruebas](https://img.shields.io/badge/pruebas-101%20PHPUnit-2ea44f)
 
-[Inicio rápido](#inicio-rápido) · [Qué hace](#qué-hace) · [Cómo funciona](#cómo-funciona) · [Arquitectura](docs/ARQUITECTURA.md) · [Guía funcional](docs/FUNCIONALIDADES.md) · [Toda la documentación](docs/README.md)
+**[Demo en línea](https://blindem-liquidaciones.onrender.com)** · [Inicio rápido](#inicio-rápido) · [Qué hace](#qué-hace) · [Cómo funciona](#cómo-funciona) · [Arquitectura](docs/ARQUITECTURA.md) · [Guía funcional](docs/FUNCIONALIDADES.md) · [Toda la documentación](docs/README.md)
 
 <br>
 
@@ -114,6 +114,8 @@ El script crea la configuración, genera la clave sin mostrarla, construye la im
 | --- | --- | --- |
 | Administrador | `admin@blindem.test` | `Cambiar123!` |
 | Colaborador | `colaborador@blindem.test` | `Cambiar123!` |
+
+**Demo en línea:** las mismas cuentas y datos funcionan en **https://blindem-liquidaciones.onrender.com**, desplegada en Render con el asistente de IA sobre Ollama Cloud. Es un plan gratuito: si estuvo inactiva, la primera carga tarda cerca de un minuto.
 
 Los datos persisten en PostgreSQL. Para aplicar cambios de código:
 
