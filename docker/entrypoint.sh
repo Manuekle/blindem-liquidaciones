@@ -8,9 +8,14 @@ fi
 if [ "${RUN_MIGRATIONS:-false}" = "true" ]; then
     php artisan migrate --force
 fi
-# Seeders use firstOrCreate, so running them on every start is safe.
+# Catalogs use firstOrCreate, so loading them on every start is safe; demo data stays out.
 if [ "${RUN_SEED:-false}" = "true" ]; then
-    php artisan db:seed --force
+    php artisan db:seed --class=CatalogSeeder --force
+fi
+# First admin for hosts without a shell. Skipped when the account already exists.
+if [ -n "${ADMIN_EMAIL:-}" ] && [ -n "${ADMIN_PASSWORD:-}" ]; then
+    printf '%s\n%s\n' "$ADMIN_PASSWORD" "$ADMIN_PASSWORD" \
+        | SHELL_INTERACTIVE=1 php artisan blindem:admin "$ADMIN_EMAIL" || true
 fi
 if [ "$1" = "apache2-foreground" ] && [ "${APP_ENV:-local}" = "production" ]; then
     php artisan config:cache
