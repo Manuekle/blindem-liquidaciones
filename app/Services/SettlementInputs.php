@@ -34,6 +34,7 @@ class SettlementInputs
             'vacation_days_pending' => $contract->vacation_days_pending, 'vacation_days_taken' => $contract->vacation_days_taken,
             'pending_salary_days' => $contract->pending_salary_days, 'pending_transport_days' => $contract->pending_transport_days,
             'advances' => $contract->advances, 'other_deductions' => $contract->other_deductions,
+            'settlement_method' => $contract->settlement_method ?? 'legal',
             'wrongful_dismissal' => $contract->status === 'terminated' && (bool) $contract->terminationReason?->implies_indemnification,
             'manual_indemnification' => $contract->manual_indemnification,
             'contract_type' => $contract->contractType->calculation_method,

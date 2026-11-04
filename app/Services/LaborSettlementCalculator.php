@@ -12,7 +12,9 @@ use DomainException;
  */
 final class LaborSettlementCalculator
 {
-    public const VERSION = '2.1.0';
+    public const VERSION = '2.2.0';
+
+    public const METHODS = ['legal' => 'Legal ajustado', 'template' => 'Plantilla Blindem (Excel)'];
 
     public static function days360(string $from, string $to): int
     {
@@ -61,6 +63,11 @@ final class LaborSettlementCalculator
                 throw new DomainException('Indique fechas válidas en formato año-mes-día.');
             }
         }
+        $method = (string) ($data['settlement_method'] ?? 'legal');
+        if (! array_key_exists($method, self::METHODS)) {
+            throw new DomainException('Método de liquidación no válido.');
+        }
+        $template = $method === 'template';
         $salary = (int) ($data['basic_salary'] ?? 0);
         $extras = (int) ($data['average_extras'] ?? 0);
         $surcharges = (int) ($data['average_surcharges'] ?? 0);
@@ -97,7 +104,8 @@ final class LaborSettlementCalculator
         $vacAccrued = round($service360 * 15 / 360, 2);
         if (self::blank($data, 'vacation_days_pending')) {
             $auto[] = 'vacation_days_pending';
-            $vacDays = max(0, round($vacAccrued - $vacTaken, 2));
+            // Template divides by 720, so its day field counts service days, not rest days.
+            $vacDays = $template ? max(0, $service360 - (int) round($vacTaken * 24)) : max(0, round($vacAccrued - $vacTaken, 2));
         } else {
             $vacDays = (float) $data['vacation_days_pending'];
         }
@@ -128,11 +136,12 @@ final class LaborSettlementCalculator
             $transport = 0;
         }
         $base = $salaryBase + $transport;
-        $vacBase = $salary + $surcharges;
+        $vacBase = $template ? $salaryBase : $salary + $surcharges;
         $severance = self::money($base * $cesDays / 360);
         $severanceInterest = self::money($severance * $cesDays * $interestRate / 360);
         $premium = self::money($base * $primaDays / 360);
-        $vacation = self::money(($vacBase / 30) * $vacDays);
+        $vacation = $template ? self::money($vacBase * $vacDays / 720) : self::money(($vacBase / 30) * $vacDays);
+        $indBase = $template ? $salary : $salaryBase;
         $salaryDue = self::money(($salary / 30) * $salaryDays);
         $transportDue = self::money(($transport / 30) * $transportDays);
         $indemnification = 0;
@@ -141,11 +150,11 @@ final class LaborSettlementCalculator
         if (! empty($data['wrongful_dismissal'])) {
             if (array_key_exists('manual_indemnification', $data) && $data['manual_indemnification'] !== null && $data['manual_indemnification'] !== '') {
                 $indemnification = (int) $data['manual_indemnification'];
-                $indDays = $indemnification * 30 / $salaryBase;
+                $indDays = $indemnification * 30 / $indBase;
                 if ($indemnification <= 0) {
                     throw new DomainException('La indemnización manual debe ser mayor a cero cuando aplica.');
                 }
-                if ($contractType === 'obra' && $indemnification < self::money($salaryBase / 30 * 15)) {
+                if ($contractType === 'obra' && $indemnification < self::money($indBase / 30 * 15)) {
                     throw new DomainException('La indemnización por obra o labor no puede ser inferior a 15 días de salario.');
                 }
                 $warnings[] = 'Indemnización ingresada manualmente: verificar soporte jurídico.';
@@ -158,19 +167,27 @@ final class LaborSettlementCalculator
                 $retired = new DateTimeImmutable($end);
                 $remaining = $last > $retired ? (int) $retired->diff($last)->days : 0;
                 $indDays = (float) $remaining;
-                $indemnification = self::money($salaryBase / 30 * $remaining);
+                $indemnification = self::money($indBase / 30 * $remaining);
             } elseif ($contractType === 'indefinido') {
-                $lowTier = $salaryBase < 10 * $smlmv; // Legal threshold: strictly below 10 SMMLV
+                // Legal: strictly below 10 SMMLV. Template: salary <= 10 SMMLV, basic salary only.
+                $lowTier = $template ? $indBase <= 10 * $smlmv : $indBase < 10 * $smlmv;
                 $first = $lowTier ? 30 : 20;
                 $additional = $lowTier ? 20 : 15;
-                $indDays = $actual <= 365 ? $first : $first + ($actual - 365) / 365 * $additional;
-                $indemnification = self::money($salaryBase / 30 * $indDays);
+                if ($template) {
+                    // Excel: first-year days + (full years - 1) * additional + fractional year * additional.
+                    $years = intdiv($actual, 365);
+                    $indDays = $first + ($years >= 1 ? ($years - 1) * $additional : 0) + ($actual % 365) / 365 * $additional;
+                } else {
+                    $indDays = $actual <= 365 ? $first : $first + ($actual - 365) / 365 * $additional;
+                }
+                $indemnification = self::money($indBase / 30 * $indDays);
             } else {
                 throw new DomainException('Este tipo de contrato requiere una indemnización manual sustentada; obra o labor tiene un mínimo de 15 días de salario.');
             }
         }
-        $health = self::money($salaryDue * $healthRate);
-        $pension = self::money($salaryDue * $pensionRate);
+        $contribBase = $template ? $salaryDue + $vacation : $salaryDue;
+        $health = self::money($contribBase * $healthRate);
+        $pension = self::money($contribBase * $pensionRate);
         $advances = (int) ($data['advances'] ?? 0);
         $other = (int) ($data['other_deductions'] ?? 0);
         if ($advances < 0 || $other < 0 || $indemnification < 0) {
@@ -188,7 +205,7 @@ final class LaborSettlementCalculator
             'cesantias_days' => $cesDays, 'prima_days' => $primaDays, 'vacation_days_pending' => $vacDays,
             'vacation_days_accrued' => $vacAccrued, 'vacation_days_taken' => $vacTaken,
             'pending_salary_days' => $salaryDays, 'pending_transport_days' => $transportDays, 'auto_fields' => $auto,
-            'prestational_base' => $base, 'vacation_base' => $vacBase, 'indemnification_base' => $salaryBase, 'min_wage' => $smlmv,
+            'prestational_base' => $base, 'vacation_base' => $vacBase, 'indemnification_base' => $indBase, 'settlement_method' => $method, 'min_wage' => $smlmv,
             'health_rate' => $healthRate, 'pension_rate' => $pensionRate, 'interest_rate' => $interestRate,
             'severance' => $severance, 'severance_interest' => $severanceInterest, 'premium' => $premium,
             'vacations' => $vacation, 'salary_due' => $salaryDue, 'transport_due' => $transportDue,
@@ -199,11 +216,11 @@ final class LaborSettlementCalculator
                 'severance' => 'Base prestacional × días cesantías / 360',
                 'severance_interest' => 'Cesantías × días cesantías × '.($interestRate * 100).'% / 360',
                 'premium' => 'Base prestacional × días prima / 360',
-                'vacations' => 'Base vacaciones / 30 × días de descanso pendientes (auto: 15 días por 360 de servicio − disfrutados)',
+                'vacations' => $template ? 'Base vacaciones × días / 720 (fórmula de la plantilla)' : 'Base vacaciones / 30 × días de descanso pendientes (auto: 15 días por 360 de servicio − disfrutados)',
                 'salary_due' => 'Salario básico / 30 × días salario pendientes',
                 'transport_due' => 'Auxilio transporte / 30 × días transporte pendientes',
-                'health' => 'Salario pendiente × '.($healthRate * 100).'% (no incluye vacaciones compensadas)',
-                'pension' => 'Salario pendiente × '.($pensionRate * 100).'% (no incluye vacaciones compensadas)',
+                'health' => $template ? '(Salario pendiente + vacaciones) × '.($healthRate * 100).'% (plantilla)' : 'Salario pendiente × '.($healthRate * 100).'% (no incluye vacaciones compensadas)',
+                'pension' => $template ? '(Salario pendiente + vacaciones) × '.($pensionRate * 100).'% (plantilla)' : 'Salario pendiente × '.($pensionRate * 100).'% (no incluye vacaciones compensadas)',
             ],
         ];
     }

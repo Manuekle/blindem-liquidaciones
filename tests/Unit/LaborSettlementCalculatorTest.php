@@ -124,4 +124,32 @@ class LaborSettlementCalculatorTest extends TestCase
         $this->expectException(\DomainException::class);
         (new LaborSettlementCalculator)->calculate([...$this->sample(), 'start_date' => '2026-02-30']);
     }
+
+    private function excel(array $over = []): array
+    {
+        return ['start_date' => '2023-01-15', 'end_date' => '2024-06-30', 'basic_salary' => 1750905, 'average_extras' => 150000, 'transport_allowance' => 249095, 'min_wage' => 1300000, 'cesantias_days' => 180, 'prima_days' => 180, 'vacation_days_pending' => 15, 'pending_salary_days' => 15, 'pending_transport_days' => 15, 'settlement_method' => 'template', ...$over];
+    }
+
+    public function test_template_method_matches_excel_sheet_one_to_the_peso(): void
+    {
+        $r = (new LaborSettlementCalculator)->calculate($this->excel());
+        $this->assertSame([1075000, 64500, 1075000, 39602, 875453, 124548, 3254103], [$r['severance'], $r['severance_interest'], $r['premium'], $r['vacations'], $r['salary_due'], $r['transport_due'], $r['gross']]);
+        $this->assertSame([36602, 36602, 73204, 3180899], [$r['health'], $r['pension'], $r['total_deductions'], $r['net']]);
+    }
+
+    public function test_template_method_matches_excel_sheet_two_to_the_peso(): void
+    {
+        $r = (new LaborSettlementCalculator)->calculate($this->excel(['start_date' => '2021-03-15', 'wrongful_dismissal' => true, 'contract_type' => 'indefinido']));
+        $this->assertSame(75.973, $r['indemnification_days']);
+        $this->assertSame(4434027, $r['indemnification']);
+        $this->assertSame(7688130, $r['gross']);
+        $this->assertSame(7614926, $r['net']);
+    }
+
+    public function test_legal_method_stays_default(): void
+    {
+        $r = (new LaborSettlementCalculator)->calculate($this->excel(['settlement_method' => 'legal']));
+        $this->assertSame(4019918, $r['net']);
+        $this->assertSame('legal', (new LaborSettlementCalculator)->calculate($this->sample())['settlement_method']);
+    }
 }

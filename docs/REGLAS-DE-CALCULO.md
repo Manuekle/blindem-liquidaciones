@@ -4,6 +4,13 @@
 
 Las liquidaciones corresponden a contratos laborales ordinarios del sector privado en Colombia. Los campos de promedios se calculan previamente a partir de la nómina efectiva: la aplicación no reconstruye pagos mensuales ni liquida salario integral, incapacidades, embargos, retención o aportes patronales.
 
+## Métodos de cálculo
+
+Cada contrato elige su método (`settlement_method`) y queda guardado en el snapshot.
+
+- **Legal ajustado** (por defecto): las reglas de este documento.
+- **Plantilla Blindem (Excel)**: reproduce al peso `Formato_Liquidacion_e_Indemnizacion_Prueba Blindem.xlsx`. Vacaciones = (básico + variable) × días / 720; salud y pensión sobre salario pendiente + vacaciones; indemnización sobre el básico con umbral `<= 10 SMLMV` y el día-fracción de la hoja. Casos de aceptación: hoja 1 neto **$3.180.899**, hoja 2 (2021-03-15 a 2024-06-30, despido sin justa causa) indemnización **$4.434.027** y neto **$7.614.926**. En término fijo la plantilla usa 180 días constantes; el motor mantiene los días faltantes reales.
+
 ## Entradas y bases
 
 - `average_extras`: promedio salarial de horas extras y trabajo en días de descanso obligatorio. Integra prestaciones e indemnización; se excluye de la base de vacaciones.

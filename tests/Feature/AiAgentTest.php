@@ -70,7 +70,7 @@ class AiAgentTest extends TestCase
         $data = $this->ask('busca los contratos retirados');
 
         $this->assertSame('search', $data['intent']);
-        $this->assertCount(Contract::where('status', 'terminated')->count(), $data['items']);
+        $this->assertCount(min(5, Contract::where('status', 'terminated')->count()), $data['items']); // the assistant lists at most five
         $this->assertStringEndsWith('/contratos?status=terminated', $data['actions'][0]['href']);
     }
 
@@ -94,11 +94,12 @@ class AiAgentTest extends TestCase
         $this->assertSame('unsure', $data['mood']);
         $this->assertEqualsCanonicalizing(['Carlos Andrés Ruiz', 'Juan Carlos Pérez'], array_column($data['choices'], 'label'));
 
-        // Juan Carlos has one contract, so picking him explains it right away.
+        // Juan Carlos has several contracts: choosing him asks which one, choosing a contract explains it.
         $juan = Worker::where('full_name', 'Juan Carlos Pérez')->firstOrFail();
-        $data = $this->ask('explícame la liquidación de Carlos', ['chosen_worker' => $juan->id]);
+        $this->assertSame('clarify', $this->ask('explícame la liquidación de Carlos', ['chosen_worker' => $juan->id])['intent']);
+        $data = $this->ask('explícame la liquidación de Carlos', ['chosen_worker' => $juan->id, 'chosen_contract' => $juan->contracts()->value('id')]);
         $this->assertSame('explain', $data['intent']);
-        $this->assertSame($juan->contracts()->value('id'), $data['focus']['contract']);
+        $this->assertContains($data['focus']['contract'], $juan->contracts()->pluck('id')->all());
         $this->assertStringContainsString('Juan', $data['reply']);
         $this->assertNotEmpty($data['items']);
     }

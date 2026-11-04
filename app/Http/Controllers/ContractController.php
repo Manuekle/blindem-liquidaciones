@@ -57,10 +57,11 @@ class ContractController
             'basic_salary' => 'required|integer|min:1|max:99999999999', 'transport_allowance' => 'required|integer|min:0|max:99999999999', 'average_extras' => 'required|integer|min:0|max:99999999999', 'average_surcharges' => 'required|integer|min:0|max:99999999999',
             'cesantias_days' => 'nullable|integer|between:0,360', 'prima_days' => 'nullable|integer|between:0,180', 'vacation_days_pending' => 'nullable|numeric|min:0|max:9999', 'vacation_days_taken' => 'nullable|numeric|min:0|max:9999',
             'pending_salary_days' => 'nullable|integer|between:0,30', 'pending_transport_days' => 'nullable|integer|between:0,30', 'advances' => 'required|integer|min:0', 'other_deductions' => 'required|integer|min:0',
-            'manual_indemnification' => 'nullable|integer|min:0', 'status' => ['required', Rule::in(['active', 'terminated'])], 'notes' => 'nullable|string|max:1000',
+            'manual_indemnification' => 'nullable|integer|min:0', 'status' => ['required', Rule::in(['active', 'terminated'])], 'notes' => 'nullable|string|max:1000', 'settlement_method' => ['nullable', Rule::in(array_keys(LaborSettlementCalculator::METHODS))],
         ]);
         $data = array_replace(['end_date' => null, 'agreed_end_date' => null, 'termination_reason_id' => null, 'manual_indemnification' => null, 'cesantias_days' => null, 'prima_days' => null, 'vacation_days_pending' => null, 'pending_salary_days' => null, 'pending_transport_days' => null], $data);
         $data['vacation_days_taken'] ??= 0;
+        $data['settlement_method'] ??= 'legal';
         if ($contract && ! $contract->salary_components_reviewed && ! $r->boolean('salary_components_reviewed')) {
             throw ValidationException::withMessages(['salary_components_reviewed' => 'Confirma la revisión de los importes de horas extras y recargos.']);
         }
