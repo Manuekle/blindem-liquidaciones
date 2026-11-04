@@ -1,0 +1,165 @@
+POSIBLES PREGUNTAS DEL ENTREVISTADOR Y COMO RESPONDERLAS
+========================================================
+
+Lee cada respuesta, entiendela, y dila con tus palabras. Hay tres grupos: negocio, tecnica
+y preguntas trampa.
+
+
+--------------------------------------------------------------
+GRUPO A - NEGOCIO
+--------------------------------------------------------------
+
+P1. Que hace la aplicacion en una frase?
+R: Calcula la liquidacion de un contrato laboral en Colombia con la norma del anio, explica cada cifra,
+   la exporta a Excel y guarda el resultado tal como se entrego.
+
+P2. Que es una liquidacion laboral?
+R: Es el pago final que la empresa le hace al trabajador cuando termina el contrato. Incluye lo que ya
+   gano pero no le han pagado: cesantias, intereses, prima, vacaciones, salario pendiente y, si aplica,
+   una indemnizacion. Menos los descuentos de salud y pension.
+
+P3. Por que dos metodos de calculo?
+R: Porque el Excel de la prueba y la norma no coinciden en cuatro puntos. El Excel es el requisito del
+   cliente y la norma es la defensa juridica. En vez de decidir yo, cada contrato elige el metodo y queda
+   registrado en el historial.
+
+P4. Cual de los dos es el correcto?
+R: Depende del criterio. "Plantilla" reproduce lo que pide el Excel. "Legal ajustado" corrige vacaciones,
+   aportes y base de la indemnizacion segun la norma y una sentencia de la Corte Suprema. Para un caso real
+   convendria que un abogado laboral confirme.
+
+P5. Cuales son las diferencias entre el Excel y la norma?
+R: Cuatro. Uno, las vacaciones: el Excel divide por 720 una cantidad de dias de descanso y da 39.602 en
+   vez de 875.453. Dos, salud y pension incluyen las vacaciones. Tres, la indemnizacion usa solo el basico
+   y no los promedios salariales. Cuatro, en termino fijo usa 180 dias constantes y no los dias que faltan.
+
+P6. Como se calcula la indemnizacion?
+R: En contrato indefinido con salario menor a 10 salarios minimos: 30 dias de salario el primer anio y 20
+   dias por cada anio adicional, proporcional por fraccion. Con 10 o mas salarios minimos: 20 y 15.
+   En termino fijo: los salarios de los dias que faltan para terminar el plazo. Es el articulo 64 del
+   Codigo Sustantivo del Trabajo.
+
+P7. Por que el auxilio de transporte a veces no entra?
+R: Solo se paga a quien gana hasta dos salarios minimos. Si gana mas, la aplicacion lo excluye del calculo
+   automaticamente y muestra una advertencia.
+
+P8. Que es la convencion 30/360?
+R: Una forma de contar donde todos los meses tienen 30 dias y el anio 360. Es lo que se usa en nomina
+   colombiana para simplificar. Los dias se deducen de las fechas de ingreso y retiro.
+
+P9. Que pasa si cambia el salario minimo?
+R: Se actualiza la tabla de parametros del anio. Las liquidaciones ya guardadas no cambian, porque son una
+   copia fija de lo que se calculo.
+
+P10. Que casos NO cubre la aplicacion?
+R: Nomina completa, la planilla PILA, salario integral, incapacidades, embargos y retencion en la fuente.
+   Lo dejé fuera a proposito para enfocarme en la liquidacion bien hecha.
+
+P11. Quien usa la aplicacion?
+R: Dos roles. El colaborador (analista de nomina o talento humano) registra trabajadores y contratos y
+   calcula liquidaciones. El administrador ademas gestiona empresas, catalogos, parametros por anio y usuarios.
+
+
+--------------------------------------------------------------
+GRUPO B - TECNICA
+--------------------------------------------------------------
+
+P12. Que tecnologias usaste y por que?
+R: Laravel 12 con PHP 8.3 y PostgreSQL 16, en contenedores Docker, desplegado en Render. Laravel me da
+   migraciones, validacion, autenticacion y pruebas ya integradas, asi que pude concentrarme en las reglas
+   del negocio. PostgreSQL es una base robusta y gratuita.
+
+P13. Por que un monolito y no microservicios?
+R: Para este tamano de problema los microservicios serian complejidad sin beneficio. Un monolito es mas
+   rapido de construir, de probar y de operar: un contenedor de aplicacion y uno de base de datos.
+
+P14. Como esta organizado el codigo?
+R: Controladores delgados que validan y revisan permisos; servicios con las reglas de negocio; modelos con
+   los datos. El motor de calculo esta en un solo servicio, LaborSettlementCalculator.
+
+P15. Que es el motor de calculo y por que es una "funcion pura"?
+R: Es el codigo que hace las cuentas. Es "pura" porque solo depende de lo que recibe: no lee la base de
+   datos ni la hora. Eso la hace predecible (mismos datos, misma respuesta) y muy facil de probar.
+
+P16. Como evitas errores de redondeo?
+R: Trabajo con pesos enteros y redondeo mitad hacia arriba por cada concepto, igual que la funcion ROUND
+   del Excel.
+
+P17. Que es el historial inmutable o "snapshot"?
+R: Cada liquidacion guardada incluye sus datos de entrada, el resultado, las tarifas, las fuentes y la
+   version del motor. Consultarla o exportarla no la vuelve a calcular, asi que no cambia aunque cambie la norma.
+
+P18. Como sabes que tu calculo coincide con el Excel?
+R: Tengo pruebas automaticas que comparan cada cifra de las dos hojas con lo que da el motor, al peso.
+   Si alguien cambia una formula y se rompe, el test falla.
+
+P19. Cuantas pruebas tienes?
+R: 492 verificaciones automaticas con PHPUnit. Corren sobre una base de datos en memoria, asi que nunca
+   tocan los datos reales.
+
+P20. Como funciona la inteligencia artificial?
+R: Es un complemento. Explica la liquidacion en lenguaje claro, responde preguntas citando normas de una
+   base de conocimiento y extrae datos de un texto libre. Tiene un modo simulado por reglas sin internet y otro
+   con un modelo local (Ollama). Todo lo que dice el modelo se verifica contra los datos y si no coincide se descarta.
+
+P21. Por que no usaste IA para calcular?
+R: Porque con dinero se necesita un resultado exacto, repetible y auditable. Un modelo de lenguaje puede
+   equivocarse o dar respuestas distintas. Por eso la IA explica y el motor decide la cifra.
+
+P22. Como proteges las URLs de los contratos? Se pueden adivinar?
+R: Hay dos capas. La principal es que toda ruta exige iniciar sesion y los modulos de administracion exigen
+   rol de administrador. La segunda es que contratos, trabajadores y liquidaciones usan en la URL un UUID
+   aleatorio en lugar del numero consecutivo, asi que no se puede probar /contratos/25. Ademas, borrar
+   contratos es solo del administrador.
+
+P23. Que otras medidas de seguridad tienes?
+R: Roles, proteccion CSRF en los formularios, limite de intentos de login, cuentas que se pueden desactivar,
+   y el Excel exportado escapa el texto para evitar inyeccion de formulas.
+
+P24. Como despliegas?
+R: Hago commit y push a la rama principal. Render detecta el cambio, construye la imagen Docker, aplica las
+   migraciones de la base de datos al arrancar y publica. No hay pasos manuales.
+
+P25. Que es una migracion?
+R: Un archivo que describe un cambio en la estructura de la base de datos (por ejemplo, agregar una columna).
+   Se ejecuta de forma ordenada y repetible en local y en produccion.
+
+P26. Que es un seeder?
+R: Un script que carga datos iniciales o de demostracion en la base de datos. Para produccion lo deje
+   apagado, de modo que los deploys no siembren datos solos.
+
+P27. Como manejas errores y datos invalidos?
+R: El motor lanza un error claro cuando algo no es valido (fechas incorrectas, salario en cero, dias fuera de
+   rango) y la pantalla lo muestra en vez de calcular algo equivocado. Los formularios validan en el servidor.
+
+P28. Se puede escalar?
+R: Para este alcance basta un contenedor. Si creciera, se puede aumentar instancias de la aplicacion detras
+   de un balanceador, porque el motor no guarda estado y el estado esta en PostgreSQL.
+
+
+--------------------------------------------------------------
+GRUPO C - PREGUNTAS TRAMPA (responde con honestidad)
+--------------------------------------------------------------
+
+P29. Esto esta listo para produccion real con clientes?
+R: Es una base solida y probada para el caso del Excel, pero antes de usarla con clientes reales faltaria
+   revision juridica, auditoria de cambios, autenticacion en dos pasos y una politica de datos por empresa.
+
+P30. Por que tu motor y el Excel dan distinto?
+R: Porque el Excel divide las vacaciones por 720 y usa solo el basico en la indemnizacion. Lo documente, y
+   por eso ofrezco el metodo "Plantilla", que reproduce el Excel al peso.
+
+P31. Todos los usuarios ven todos los contratos?
+R: Si. La aplicacion esta pensada para una sola organizacion, donde el equipo comparte los datos. Si sirviera
+   a varias empresas, agregaria politicas para filtrar por empresa o por usuario.
+
+P32. Hay cuentas demo en produccion?
+R: (Si todavia existen) Si, y es un riesgo conocido: tienen una contrasena documentada. Antes de usar la
+   aplicacion de verdad hay que cambiarlas o borrarlas.
+
+P33. Que harias diferente con mas tiempo?
+R: Importar el Excel directamente para crear el contrato, revision juridica de casos limite, auditoria de
+   cambios y autenticacion en dos pasos.
+
+P34. Si no sabes la respuesta
+R: Dilo con calma: "No lo verifique en ese caso. Lo que si probe es...". Inventar es peor que reconocer un limite.

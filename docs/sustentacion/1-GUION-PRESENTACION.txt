@@ -1,0 +1,182 @@
+GUION DE LA PRESENTACION (slide por slide, para decirlo en voz alta)
+=====================================================================
+
+Duracion total: 12 a 15 minutos de exposicion, mas 4 de demo y las preguntas.
+Consejo: no leas la slide. Mira al entrevistador y cuenta la idea con tus palabras.
+Cada bloque de abajo es lo que dirias, en primera persona. Adaptalo a como hablas.
+
+Las teclas en las slides: flechas para avanzar, N para ver tus notas, F para pantalla completa.
+
+
+SLIDE 1 - PORTADA (20 segundos)
+-------------------------------
+"Buenos dias, soy [tu nombre]. Les voy a presentar Liquidaciones, una aplicacion que
+automatiza el calculo de la liquidacion de contratos laborales en Colombia.
+Voy a ir en este orden: primero el problema de negocio y las reglas que aplica,
+y despues como lo programe, como lo probe y como lo desplegue."
+
+
+SLIDE 2 - AGENDA (20 segundos)
+------------------------------
+"Lo dividi en dos partes: negocio y tecnica. Empiezo por el negocio porque cada decision
+tecnica que tome nace de una regla del negocio."
+
+
+SLIDE 3 - EL PROBLEMA (40 segundos)
+-----------------------------------
+"Hoy este calculo se hace en plantillas de Excel. Eso tiene tres problemas.
+Uno: los dias se cuentan a mano con una convencion en la que todos los meses tienen 30 dias
+y el anio 360, y es facil equivocarse.
+Dos: el salario minimo y el auxilio de transporte cambian cada anio, y la plantilla se queda
+con cifras viejas.
+Tres: no queda rastro. Nadie sabe con que parametros se calculo una liquidacion del pasado.
+Un error aqui se paga en dinero o en una demanda. Mi objetivo fue calcular con la norma del anio,
+explicar cada cifra y guardar el resultado tal como se entrego."
+
+
+SLIDE 4 - QUE SE LE PAGA AL TRABAJADOR (45 segundos)
+----------------------------------------------------
+"Cuando termina un contrato, la empresa le debe al trabajador varios conceptos:
+las cesantias, que son un ahorro por cada anio trabajado; los intereses sobre esas cesantias;
+la prima de servicios; las vacaciones que no disfruto; el salario y el auxilio de transporte
+de los dias que trabajo y no le han pagado; y, si lo despidieron sin justa causa, una indemnizacion.
+A eso se le descuenta salud y pension. Lo que queda es el neto a recibir.
+Todo en pesos enteros."
+
+
+SLIDE 5 - REGLAS QUE GOBIERNAN EL CALCULO (45 segundos)
+-------------------------------------------------------
+"Hay cuatro reglas que mueven casi todo.
+Primera: el anio comercial de 360 dias. Los dias se sacan de las fechas, y si el usuario escribe
+un valor a mano, ese manda.
+Segunda: el auxilio de transporte solo entra en la base si el trabajador gana hasta dos salarios minimos.
+Tercera: en un contrato indefinido, la indemnizacion es 30 dias de salario el primer anio y 20 por cada
+anio adicional, si gana menos de 10 salarios minimos. Desde 10, son 20 y 15. Esto sale del articulo 64
+del Codigo Sustantivo del Trabajo.
+Cuarta: en un contrato a termino fijo se pagan los dias que faltan para terminar el plazo."
+
+
+SLIDE 6 - EL EXCEL (35 segundos)
+--------------------------------
+"La prueba trae un Excel con dos escenarios del mismo trabajador, Juan Carlos Perez.
+La hoja 1 es una terminacion de contrato sin indemnizacion, y el neto es 3 millones 180 mil 899 pesos.
+La hoja 2 es un despido sin justa causa, desde el anio 2021, con una indemnizacion de
+4 millones 434 mil 27 pesos y un neto de 7 millones 614 mil 926."
+
+
+SLIDE 7 - HALLAZGOS EN EL EXCEL (60 segundos)  <- LA MAS IMPORTANTE
+---------------------------------------------------------------------
+"Al revisar las formulas del Excel encontre cuatro supuestos que no coinciden con la norma.
+Uno: las vacaciones. El Excel divide por 720 una cantidad que son dias de descanso. Eso da
+39 mil 602 pesos, cuando con 15 dias de descanso lo correcto seria 875 mil 453.
+Dos: salud y pension se calculan incluyendo las vacaciones, y deberian calcularse solo sobre el salario.
+Tres: la indemnizacion usa solo el salario basico, no los promedios salariales como las horas extras.
+Cuatro: en contrato a termino fijo usa 180 dias fijos, en lugar de los dias que realmente faltan.
+No quise corregirlos a escondidas ni copiarlos a ciegas. Los documente."
+
+
+SLIDE 8 - LA DECISION: DOS METODOS (45 segundos)
+------------------------------------------------
+"Entonces no impuse una sola verdad. Cada contrato elige su metodo de calculo.
+El metodo 'Plantilla Blindem' reproduce el Excel al peso: da 3.180.899 y 7.614.926.
+El metodo 'Legal ajustado' aplica el criterio de la norma: da 4.019.918 en la hoja 1
+y 8.833.808 en la hoja 2. El metodo elegido queda guardado en cada liquidacion,
+asi siempre se sabe con que criterio se calculo."
+
+
+SLIDE 9 - LA SOLUCION EN PANTALLA (30 segundos)
+-----------------------------------------------
+"Asi se ve la aplicacion. Arriba esta el neto a recibir con el devengado y las deducciones.
+Abajo, cada concepto con sus dias y su formula. Y hay una explicacion en lenguaje claro,
+hecha con inteligencia artificial, para revisar con el trabajador."
+
+
+SLIDE 10 - ARQUITECTURA (40 segundos)
+-------------------------------------
+"Ahora la parte tecnica. Es una aplicacion monolitica: Laravel 12 con PHP 8.3 y base de datos PostgreSQL 16.
+El navegador le pide paginas a controladores delgados, que solo validan y revisan permisos.
+Las reglas de negocio viven en un servicio aparte, y los datos en la base.
+Elegi esto por simplicidad: un contenedor para la aplicacion y otro para la base de datos,
+sin servicios innecesarios."
+
+
+SLIDE 11 - DATOS (30 segundos)
+------------------------------
+"El modelo de datos tiene cuatro ideas: personas, o sea trabajadores, empresas y usuarios con rol;
+contratos, con fechas, salario y metodo de calculo; parametros por anio, con el salario minimo,
+el auxilio y las tarifas, cada uno con el decreto que lo respalda; y el historial de liquidaciones,
+donde cada una guarda sus entradas, su resultado y la version del motor."
+
+
+SLIDE 12 - EL MOTOR DE CALCULO (45 segundos)
+--------------------------------------------
+"El corazon es un motor de calculo que es una funcion pura. Recibe fechas, salarios, parametros
+y el metodo; aplica las reglas; y devuelve importes enteros con las formulas escritas en texto.
+No toca la base de datos, y por eso siempre da la misma respuesta con los mismos datos
+y es muy facil de probar. Redondea mitad hacia arriba por cada concepto, igual que el ROUND del Excel,
+y lleva un numero de version para saber con que reglas se calculo cada liquidacion."
+
+
+SLIDE 13 - FLUJO (30 segundos)
+------------------------------
+"El flujo es: se crea el contrato, se toman los parametros del anio de retiro, se calcula,
+se exporta a Excel y se guarda en el historial. Lo importante es que el historial es inmutable:
+si manana cambia la norma, las liquidaciones del pasado no se recalculan ni se alteran."
+
+
+SLIDE 14 - INTELIGENCIA ARTIFICIAL (45 segundos)
+------------------------------------------------
+"La IA es un complemento, no la fuente de la verdad. Explica la liquidacion, responde preguntas
+citando normas y extrae datos de un texto libre. Tiene un modo simulado por reglas, sin internet,
+y otro con un modelo local. Todo lo que dice el modelo se verifica contra los datos, y si no coincide
+se descarta. La IA nunca cambia una cifra: el dinero lo calcula siempre el motor."
+
+
+SLIDE 15 - CALIDAD Y SEGURIDAD (45 segundos)
+--------------------------------------------
+"Las cifras del Excel son pruebas automaticas: si alguien rompe una formula, el test falla.
+Son 492 verificaciones y no tocan la base de datos real.
+En seguridad: toda ruta pide sesion, hay roles de administrador y colaborador, proteccion CSRF,
+limite de intentos de login, y el Excel exportado escapa el texto para evitar inyeccion de formulas.
+Ademas, las direcciones de contratos, trabajadores y liquidaciones usan un identificador aleatorio
+en la URL, no un numero consecutivo, para que no se puedan adivinar. Y borrar contratos es solo del administrador."
+
+
+SLIDE 16 - DESPLIEGUE (35 segundos)
+-----------------------------------
+"Uso el mismo contenedor en mi computador y en produccion. Hago commit y push a la rama principal,
+Render detecta el cambio, construye la imagen Docker, aplica las migraciones de base de datos al arrancar
+y la aplicacion queda en vivo con PostgreSQL gestionado. No hay pasos manuales."
+
+
+SLIDE 17 - DEMO EN VIVO (4 minutos)
+-----------------------------------
+Decir: "Les muestro la aplicacion funcionando."
+Pasos (en este orden, sin prisa):
+  1. Entrar a Contratos y abrir el de Juan Carlos Perez con ingreso 15/01/2023 (hoja 1).
+  2. Abrir la liquidacion: mostrar el neto 3.180.899 y bajar por el desglose.
+     Decir: "cada concepto muestra sus dias y su formula".
+  3. Editar datos, cambiar el metodo a "Legal ajustado", volver a la liquidacion y ver que sube a 4.019.918.
+     Decir: "la diferencia principal son las vacaciones". Luego VOLVER A DEJAR el metodo en Plantilla.
+  4. Abrir el contrato del 2021 (hoja 2): indemnizacion 4.434.027 y neto 7.614.926.
+  5. Exportar a Excel y abrir el archivo: hoja de liquidacion y hoja de parametros y fuentes.
+  6. Guardar la liquidacion y mostrar el historial: "queda como una fotografia, no se recalcula".
+  7. (Opcional) Pulsar "Explicar liquidacion" para mostrar la IA.
+Plan B: si produccion esta lenta (se duerme en el plan gratuito), usar la version local.
+
+
+SLIDE 18 - CIERRE (40 segundos)
+-------------------------------
+"Dejé fuera a proposito la nomina completa, la planilla PILA, el salario integral y los embargos.
+Los siguientes pasos serian importar el Excel directamente para crear el contrato, una revision juridica
+de los casos limite, auditoria de cambios y autenticacion en dos pasos.
+Para cerrar: el Excel es el requisito, la norma es la defensa, y la aplicacion deja elegir
+y registrar cual se uso. Quedo atento a sus preguntas."
+
+
+CONSEJOS FINALES
+----------------
+- Si no sabes algo, dilo: "No lo verifique en ese caso. Lo que si probe es...". Es mejor que inventar.
+- Respira entre slides. Hablar lento se nota seguro.
+- Si te interrumpen con una pregunta, respondela y di "volviendo a la presentacion...".
+- Practica en voz alta al menos dos veces, con cronometro.
