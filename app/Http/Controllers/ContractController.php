@@ -61,7 +61,8 @@ class ContractController
         ]);
         $data = array_replace(['end_date' => null, 'agreed_end_date' => null, 'termination_reason_id' => null, 'manual_indemnification' => null, 'cesantias_days' => null, 'prima_days' => null, 'vacation_days_pending' => null, 'pending_salary_days' => null, 'pending_transport_days' => null], $data);
         $data['vacation_days_taken'] ??= 0;
-        $data['settlement_method'] ??= 'legal';
+        // Editing without the field keeps the method the contract already has.
+        $data['settlement_method'] ??= $contract?->settlement_method ?? 'legal';
         if ($contract && ! $contract->salary_components_reviewed && ! $r->boolean('salary_components_reviewed')) {
             throw ValidationException::withMessages(['salary_components_reviewed' => 'Confirma la revisión de los importes de horas extras y recargos.']);
         }

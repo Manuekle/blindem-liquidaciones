@@ -365,4 +365,14 @@ class SettlementWorkflowTest extends TestCase
         $contract = Contract::oldest('id')->firstOrFail();
         $this->get("/contratos/{$contract->public_id}")->assertRedirect('/login');
     }
+
+    public function test_editing_without_the_method_field_keeps_the_contract_method(): void
+    {
+        $contract = Contract::oldest('id')->firstOrFail();
+        $contract->update(['settlement_method' => 'template']);
+        $payload = $this->payload($contract);
+        unset($payload['settlement_method']);
+        $this->actingAs($this->collaborator())->put("/contratos/{$contract->public_id}", $payload)->assertSessionHasNoErrors();
+        $this->assertSame('template', $contract->fresh()->settlement_method);
+    }
 }
