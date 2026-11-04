@@ -1,0 +1,475 @@
+TELEPROMPTER · GUION DE LA PRESENTACIÓN
+(texto en voz alta; las líneas con [ ] son notas)
+
+
+
+
+
+==== 1 · PORTADA ====
+
+Buenos días, soy [TU NOMBRE].
+
+Les voy a presentar Liquidaciones, una
+aplicación que automatiza el cálculo
+de la liquidación de contratos
+laborales en Colombia.
+
+Voy a ir en este orden:
+
+primero el problema de negocio y sus
+reglas, y después cómo lo programé,
+cómo lo probé y cómo lo desplegué.
+
+
+
+==== 2 · AGENDA ====
+
+Lo dividí en dos partes:
+
+negocio y técnica.
+
+Empiezo por el negocio, porque cada
+decisión técnica nace de una regla del
+negocio.
+
+
+
+==== 3 · EL PROBLEMA ====
+
+Hoy este cálculo se hace en plantillas
+de Excel.
+
+Eso tiene tres problemas.
+
+Uno:
+
+los días se cuentan a mano, con una
+convención en la que todos los meses
+tienen treinta días, y es fácil
+equivocarse.
+
+Dos:
+
+el salario mínimo y el auxilio de
+transporte cambian cada año, y la
+plantilla se queda con cifras viejas.
+
+Tres:
+
+no queda rastro.
+
+Nadie sabe con qué parámetros se
+calculó una liquidación del pasado.
+
+Un error aquí se paga en dinero o en
+una demanda.
+
+Mi objetivo fue calcular con la norma
+del año, explicar cada cifra y guardar
+el resultado tal como se entregó.
+
+
+
+==== 4 · QUÉ SE LE PAGA AL TRABAJADOR ====
+
+Cuando termina un contrato, la empresa
+le debe al trabajador varios
+conceptos.
+
+Las cesantías, que son un ahorro por
+cada año trabajado.
+
+Los intereses sobre esas cesantías.
+
+La prima de servicios.
+
+Las vacaciones que no disfrutó.
+
+El salario y el auxilio de transporte
+de los días trabajados que no le han
+pagado.
+
+Y, si lo despidieron sin justa causa,
+una indemnización.
+
+A eso se le descuenta salud y pensión.
+
+Lo que queda es el neto a recibir,
+todo en pesos enteros.
+
+
+
+==== 5 · REGLAS DEL CÁLCULO ====
+
+Hay cuatro reglas que mueven casi
+todo.
+
+Primera:
+
+el año comercial de trescientos
+sesenta días.
+
+Los días salen de las fechas, y si el
+usuario escribe un valor a mano, ese
+manda.
+
+Segunda:
+
+el auxilio de transporte solo entra si
+el trabajador gana hasta dos salarios
+mínimos.
+
+Tercera:
+
+en un contrato indefinido, la
+indemnización es treinta días de
+salario el primer año y veinte por
+cada año adicional, si gana menos de
+diez salarios mínimos.
+
+Desde diez, son veinte y quince.
+
+Esto sale del artículo sesenta y
+cuatro del Código Sustantivo del
+Trabajo.
+
+Cuarta:
+
+en un contrato a término fijo se pagan
+los días que faltan para terminar el
+plazo.
+
+
+
+==== 6 · EL EXCEL ====
+
+La prueba trae un Excel con dos
+escenarios del mismo trabajador, Juan
+Carlos Pérez.
+
+La hoja uno es una terminación de
+contrato sin indemnización, y el neto
+es tres millones ciento ochenta mil
+ochocientos noventa y nueve pesos.
+
+La hoja dos es un despido sin justa
+causa, desde el año dos mil veintiuno,
+con una indemnización de cuatro
+millones cuatrocientos treinta y
+cuatro mil veintisiete pesos, y un
+neto de siete millones seiscientos
+catorce mil novecientos veintiséis.
+
+
+
+==== 7 · HALLAZGOS  (la más importante, ve lento) ====
+
+Al revisar las fórmulas del Excel
+encontré cuatro supuestos que no
+coinciden con la norma.
+
+Uno:
+
+las vacaciones.
+
+El Excel divide por setecientos veinte
+una cantidad que son días de descanso.
+
+Eso da treinta y nueve mil seiscientos
+dos pesos, cuando lo correcto, con
+quince días, serían ochocientos
+setenta y cinco mil cuatrocientos
+cincuenta y tres.
+
+Dos:
+
+salud y pensión se calculan incluyendo
+las vacaciones, y deberían calcularse
+solo sobre el salario.
+
+Tres:
+
+la indemnización usa solo el salario
+básico, no los promedios salariales
+como las horas extras.
+
+Cuatro:
+
+en contrato a término fijo usa ciento
+ochenta días fijos, en lugar de los
+días que realmente faltan.
+
+No quise corregirlos a escondidas ni
+copiarlos a ciegas.
+
+Los documenté.
+
+
+
+==== 8 · LA DECISIÓN: DOS MÉTODOS ====
+
+Entonces no impuse una sola verdad.
+
+Cada contrato elige su método de
+cálculo.
+
+El método Plantilla Blindem reproduce
+el Excel al peso.
+
+El método Legal ajustado aplica el
+criterio de la norma.
+
+En la hoja uno da cuatro millones
+diecinueve mil novecientos dieciocho,
+y en la hoja dos ocho millones
+ochocientos treinta y tres mil
+ochocientos ocho.
+
+El método elegido queda guardado en
+cada liquidación, así siempre se sabe
+con qué criterio se calculó.
+
+
+
+==== 9 · LA SOLUCIÓN EN PANTALLA ====
+
+Así se ve la aplicación.
+
+Arriba está el neto a recibir, con el
+devengado y las deducciones.
+
+Abajo, cada concepto con sus días y su
+fórmula.
+
+Y hay una explicación en lenguaje
+claro, hecha con inteligencia
+artificial, para revisar con el
+trabajador.
+
+
+
+==== 10 · ARQUITECTURA ====
+
+Ahora la parte técnica.
+
+Es una aplicación monolítica:
+
+Laravel doce con PHP ocho punto tres,
+y base de datos PostgreSQL dieciséis.
+
+El navegador le pide páginas a
+controladores delgados, que solo
+validan y revisan permisos.
+
+Las reglas de negocio viven en un
+servicio aparte, y los datos en la
+base.
+
+Lo elegí por simplicidad:
+
+un contenedor para la aplicación y
+otro para la base de datos.
+
+
+
+==== 11 · DATOS ====
+
+El modelo de datos tiene cuatro ideas.
+
+Personas:
+
+trabajadores, empresas y usuarios con
+rol.
+
+Contratos:
+
+con fechas, salario y método de
+cálculo.
+
+Parámetros por año:
+
+el salario mínimo, el auxilio y las
+tarifas, cada uno con el decreto que
+lo respalda.
+
+E historial:
+
+cada liquidación guarda sus entradas,
+su resultado y la versión del motor.
+
+
+
+==== 12 · EL MOTOR DE CÁLCULO ====
+
+El corazón es un motor de cálculo que
+es una función pura.
+
+Recibe fechas, salarios, parámetros y
+el método.
+
+Aplica las reglas.
+
+Y devuelve importes enteros, con las
+fórmulas escritas en texto.
+
+No toca la base de datos, y por eso
+siempre da la misma respuesta con los
+mismos datos, y es muy fácil de
+probar.
+
+Redondea mitad hacia arriba por
+concepto, igual que el ROUND del
+Excel, y lleva un número de versión.
+
+
+
+==== 13 · FLUJO ====
+
+El flujo es:
+
+se crea el contrato, se toman los
+parámetros del año de retiro, se
+calcula, se exporta a Excel y se
+guarda en el historial.
+
+Lo importante es que el historial es
+inmutable.
+
+Si mañana cambia la norma, las
+liquidaciones del pasado no se
+recalculan ni se alteran.
+
+
+
+==== 14 · INTELIGENCIA ARTIFICIAL ====
+
+La inteligencia artificial es un
+complemento, no la fuente de la
+verdad.
+
+Explica la liquidación, responde
+preguntas citando normas y extrae
+datos de un texto libre.
+
+Tiene un modo simulado por reglas, sin
+internet, y otro con un modelo local.
+
+Todo lo que dice el modelo se verifica
+contra los datos, y si no coincide, se
+descarta.
+
+La IA nunca cambia una cifra.
+
+El dinero lo calcula siempre el motor.
+
+
+
+==== 15 · CALIDAD Y SEGURIDAD ====
+
+Las cifras del Excel son pruebas
+automáticas.
+
+Si alguien rompe una fórmula, el test
+falla.
+
+Son casi quinientas verificaciones y
+no tocan la base de datos real.
+
+En seguridad:
+
+toda ruta pide sesión, hay roles de
+administrador y colaborador,
+protección contra ataques de
+formulario, y límite de intentos de
+login.
+
+Las direcciones de contratos,
+trabajadores y liquidaciones usan un
+identificador aleatorio, no un número
+consecutivo, para que no se puedan
+adivinar.
+
+Y borrar contratos es solo del
+administrador.
+
+
+
+==== 16 · DESPLIEGUE ====
+
+Uso el mismo contenedor en mi
+computador y en producción.
+
+Hago commit y push a la rama
+principal.
+
+Render detecta el cambio, construye la
+imagen Docker, aplica las migraciones
+al arrancar, y la aplicación queda en
+vivo con PostgreSQL gestionado.
+
+No hay pasos manuales.
+
+
+
+==== 17 · DEMO EN VIVO ====
+
+Les muestro la aplicación funcionando.
+
+
+[ ACCIONES DE LA DEMO - no se leen en voz alta ]
+
+1. Contratos
+   abrir Juan Carlos Pérez, ingreso
+   15/01/2023 (hoja 1)
+
+2. Liquidación
+   neto 3.180.899
+   bajar por el desglose
+
+3. Editar datos
+   método = Legal ajustado
+   ver 4.019.918
+   VOLVER A DEJAR EN PLANTILLA
+
+4. Contrato 2021 (hoja 2)
+   indemnización 4.434.027
+   neto 7.614.926
+
+5. Exportar a Excel
+   abrir y mostrar las dos hojas
+
+6. Guardar y ver el historial
+
+7. (Opcional) Explicar liquidación
+   con IA
+
+Plan B: usar la versión local
+si producción está lenta.
+
+
+
+==== 18 · CIERRE ====
+
+Dejé fuera a propósito la nómina
+completa, la planilla PILA, el salario
+integral y los embargos.
+
+Los siguientes pasos serían importar
+el Excel directamente para crear el
+contrato, una revisión jurídica de los
+casos límite, auditoría de cambios y
+autenticación en dos pasos.
+
+Para cerrar:
+
+el Excel es el requisito, la norma es
+la defensa, y la aplicación deja
+elegir y registrar cuál se usó.
+
+Quedo atento a sus preguntas.
+
+
+
+==== FIN ====
+
+Respira. Gracias.

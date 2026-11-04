@@ -1,0 +1,336 @@
+TELEPROMPTER · RESPUESTAS A PREGUNTAS
+(responde con calma, con tus palabras)
+
+
+
+
+
+==== QUÉ HACE LA APLICACIÓN ====
+
+Calcula la liquidación de un contrato
+laboral en Colombia con la norma del
+año, explica cada cifra, la exporta a
+Excel y guarda el resultado tal como
+se entregó.
+
+
+
+==== ¿QUÉ ES UNA LIQUIDACIÓN? ====
+
+Es el pago final que la empresa le
+hace al trabajador cuando termina el
+contrato.
+
+Incluye cesantías, intereses, prima,
+vacaciones, salario pendiente y, si
+aplica, indemnización.
+
+Menos los descuentos de salud y
+pensión.
+
+
+
+==== ¿POR QUÉ DOS MÉTODOS? ====
+
+Porque el Excel y la norma no
+coinciden en cuatro puntos.
+
+El Excel es el requisito del cliente y
+la norma es la defensa jurídica.
+
+En vez de decidir yo, cada contrato
+elige el método y queda registrado.
+
+
+
+==== ¿CUÁL ES EL CORRECTO? ====
+
+Depende del criterio.
+
+Plantilla reproduce lo que pide el
+Excel.
+
+Legal ajustado corrige vacaciones,
+aportes y base de indemnización según
+la norma.
+
+Para un caso real, convendría que un
+abogado laboral lo confirme.
+
+
+
+==== ¿EN QUÉ DIFIEREN EL EXCEL Y LA NORMA? ====
+
+Cuatro cosas.
+
+Vacaciones:
+
+el Excel divide por setecientos
+veinte.
+
+Salud y pensión:
+
+incluyen las vacaciones.
+
+Indemnización:
+
+usa solo el básico.
+
+Término fijo:
+
+usa ciento ochenta días fijos.
+
+
+
+==== ¿CÓMO SE CALCULA LA INDEMNIZACIÓN? ====
+
+En indefinido, con menos de diez
+salarios mínimos:
+
+treinta días el primer año y veinte
+por cada año adicional.
+
+Con diez o más:
+
+veinte y quince.
+
+En término fijo:
+
+los días que faltan.
+
+Es el artículo sesenta y cuatro del
+Código Sustantivo del Trabajo.
+
+
+
+==== ¿QUÉ ES 30/360? ====
+
+Una forma de contar donde todos los
+meses tienen treinta días y el año
+trescientos sesenta.
+
+Es la convención de nómina en
+Colombia.
+
+
+
+==== ¿QUÉ PASA SI CAMBIA EL SALARIO MÍNIMO? ====
+
+Se actualiza la tabla de parámetros
+del año.
+
+Las liquidaciones guardadas no
+cambian, porque son una copia fija.
+
+
+
+==== ¿QUÉ NO CUBRE? ====
+
+Nómina completa, planilla PILA,
+salario integral, incapacidades y
+embargos.
+
+Lo dejé fuera a propósito.
+
+
+
+==== ¿QUÉ TECNOLOGÍAS USASTE? ====
+
+Laravel doce con PHP ocho punto tres,
+PostgreSQL dieciséis, Docker y Render.
+
+Laravel trae migraciones, validación y
+pruebas, así que pude concentrarme en
+las reglas del negocio.
+
+
+
+==== ¿POR QUÉ MONOLITO? ====
+
+Para este tamaño, los microservicios
+serían complejidad sin beneficio.
+
+Un monolito es más rápido de
+construir, probar y operar.
+
+
+
+==== ¿QUÉ ES EL MOTOR DE CÁLCULO? ====
+
+Es el código que hace las cuentas.
+
+Es una función pura:
+
+solo depende de lo que recibe, no lee
+la base de datos.
+
+Por eso es predecible y fácil de
+probar.
+
+
+
+==== ¿CÓMO EVITAS ERRORES DE REDONDEO? ====
+
+Trabajo con pesos enteros y redondeo
+mitad hacia arriba por concepto, igual
+que el ROUND del Excel.
+
+
+
+==== ¿QUÉ ES EL HISTORIAL INMUTABLE? ====
+
+Cada liquidación guarda sus entradas,
+resultado, tarifas, fuentes y versión
+del motor.
+
+Consultarla o exportarla no la
+recalcula.
+
+
+
+==== ¿CÓMO SABES QUE COINCIDE CON EL EXCEL? ====
+
+Tengo pruebas automáticas que comparan
+cada cifra de las dos hojas al peso.
+
+Si algo cambia, el test falla.
+
+
+
+==== ¿CÓMO FUNCIONA LA IA? ====
+
+Es un complemento.
+
+Explica, responde citando normas y
+extrae datos de texto libre.
+
+Todo lo que dice el modelo se verifica
+contra los datos; si no coincide, se
+descarta.
+
+
+
+==== ¿POR QUÉ NO USAR IA PARA CALCULAR? ====
+
+Con dinero se necesita un resultado
+exacto, repetible y auditable.
+
+La IA puede equivocarse.
+
+Por eso solo explica; el motor decide
+la cifra.
+
+
+
+==== ¿SE PUEDEN ADIVINAR LAS URLs? ====
+
+Hay dos capas.
+
+Toda ruta exige sesión y los módulos
+de administración exigen rol.
+
+Y contratos, trabajadores y
+liquidaciones usan un UUID aleatorio
+en la URL, no un número consecutivo.
+
+
+
+==== ¿QUÉ OTRA SEGURIDAD TIENES? ====
+
+Roles, protección contra ataques de
+formulario, límite de intentos de
+login, cuentas desactivables, y el
+Excel exportado escapa el texto para
+evitar inyección de fórmulas.
+
+
+
+==== ¿CÓMO DESPLIEGAS? ====
+
+Commit y push a la rama principal.
+
+Render construye la imagen Docker,
+aplica las migraciones y publica.
+
+Sin pasos manuales.
+
+
+
+==== ¿QUÉ ES UNA MIGRACIÓN? ====
+
+Un archivo que describe un cambio en
+la estructura de la base de datos, y
+se aplica de forma ordenada y
+repetible.
+
+
+
+==== TRAMPA: ¿ESTÁ LISTO PARA PRODUCCIÓN REAL? ====
+
+Es una base sólida y probada para el
+caso del Excel.
+
+Antes de usarla con clientes faltaría
+revisión jurídica, auditoría de
+cambios, doble factor y política de
+datos por empresa.
+
+
+
+==== TRAMPA: ¿POR QUÉ TU MOTOR Y EL EXCEL DAN DISTINTO? ====
+
+Porque el Excel divide las vacaciones
+por setecientos veinte y usa solo el
+básico en la indemnización.
+
+Lo documenté, y por eso ofrezco el
+método Plantilla, que reproduce el
+Excel al peso.
+
+
+
+==== TRAMPA: ¿TODOS VEN TODOS LOS CONTRATOS? ====
+
+Sí.
+
+Está pensada para una sola
+organización.
+
+Si sirviera a varias empresas,
+agregaría políticas por empresa.
+
+
+
+==== TRAMPA: ¿CUENTAS DEMO EN PRODUCCIÓN? ====
+
+Es un riesgo conocido:
+
+tienen una contraseña documentada.
+
+Antes de usarla de verdad hay que
+cambiarlas o borrarlas.
+
+
+
+==== ¿QUÉ HARÍAS CON MÁS TIEMPO? ====
+
+Importar el Excel para crear el
+contrato, revisión jurídica de casos
+límite, auditoría de cambios y
+autenticación en dos pasos.
+
+
+
+==== SI NO SABES LA RESPUESTA ====
+
+Con calma:
+
+No lo verifiqué en ese caso.
+
+Lo que sí probé es esto.
+
+Nunca inventes.
+
+
+
+==== FIN ====
