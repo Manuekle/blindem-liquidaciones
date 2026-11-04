@@ -22,6 +22,10 @@ fi
 if [ "${SEED_EXCEL_CASES:-false}" = "true" ]; then
     php artisan db:seed --class=ExcelCaseSeeder --force
 fi
+# Opt-in and destructive: drops every contract/settlement except the two Excel cases. Turn the variable off afterwards.
+if [ "${PURGE_TO_EXCEL:-false}" = "true" ]; then
+    php artisan blindem:excel-only --force || true
+fi
 # First admin for hosts without a shell. Skipped when the account already exists.
 if [ -n "${ADMIN_EMAIL:-}" ] && [ -n "${ADMIN_PASSWORD:-}" ]; then
     printf '%s\n%s\n' "$ADMIN_PASSWORD" "$ADMIN_PASSWORD" \

@@ -23,6 +23,12 @@ class DatabaseSeeder extends Seeder
         User::updateOrCreate(['email' => 'admin@blindem.test'], ['name' => 'Administrador Blindem', 'password' => 'Cambiar123!', 'role' => 'admin']);
         User::updateOrCreate(['email' => 'colaborador@blindem.test'], ['name' => 'Colaborador Blindem', 'password' => 'Cambiar123!', 'role' => 'collaborator']);
         $this->call(CatalogSeeder::class);
+        if (env('DEMO_DATASET') === 'excel') {
+            // Only the two cases of the reference Excel; no extra demo contracts.
+            $this->call(ExcelCaseSeeder::class);
+
+            return;
+        }
         $company = Company::firstOrCreate(['nit' => '900123456-7'], ['name' => 'Blindem Demo S.A.S.', 'email' => 'demo@blindem.test', 'address' => 'Popayán, Colombia']);
         $worker = Worker::firstOrCreate(['document_type_id' => DocumentType::where('code', 'CC')->value('id'), 'document_number' => '1098765432'], ['full_name' => 'Juan Carlos Pérez', 'email' => 'juan.perez@example.test']);
         Contract::firstOrCreate(['worker_id' => $worker->id, 'company_id' => $company->id, 'start_date' => '2023-01-15'], ['job_title_id' => JobTitle::first()->id, 'contract_type_id' => ContractType::where('code', 'indefinido')->value('id'), 'termination_reason_id' => TerminationReason::where('code', 'sin_justa_causa')->value('id'), 'end_date' => '2026-06-30', 'basic_salary' => 1750905, 'transport_allowance' => 249095, 'average_extras' => 150000, 'average_surcharges' => 0, 'salary_components_reviewed' => true, 'vacation_days_pending' => 15, 'pending_salary_days' => 15, 'pending_transport_days' => 15, 'cesantias_days' => 180, 'prima_days' => 180, 'wrongful_dismissal' => true, 'status' => 'terminated', 'created_by' => User::first()->id]);
