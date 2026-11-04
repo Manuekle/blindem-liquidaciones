@@ -16,7 +16,7 @@ class DemoSettlementSeeder extends Seeder
         if (app()->environment('production') && ! config('app.allow_demo_seed')) {
             throw new \LogicException('El seeder contiene datos demo. En producción usa php artisan blindem:admin.');
         }
-        $admin = User::where('email', 'admin@blindem.test')->firstOrFail();
+        $admin = User::where('email', 'admin@blindem.test')->first() ?? User::where('role', 'admin')->oldest('id')->firstOrFail();
         foreach (Contract::where('status', 'terminated')->doesntHave('settlements')->oldest('id')->get() as $contract) {
             try {
                 $inputs = $inputFactory->fromContract($contract);

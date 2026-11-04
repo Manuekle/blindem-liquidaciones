@@ -22,6 +22,11 @@ fi
 if [ "${SEED_EXCEL_CASES:-false}" = "true" ]; then
     php artisan db:seed --class=ExcelCaseSeeder --force
 fi
+# Opt-in: demo contracts plus their settlements, without creating users. Turn the variable off afterwards.
+if [ "${SEED_DEMO_CONTRACTS:-false}" = "true" ]; then
+    php artisan db:seed --class=DemoContractsSeeder --force
+    php artisan db:seed --class=DemoSettlementSeeder --force
+fi
 # Opt-in and destructive: drops every contract/settlement except the two Excel cases. Turn the variable off afterwards.
 if [ "${PURGE_TO_EXCEL:-false}" = "true" ]; then
     php artisan blindem:excel-only --force || true
