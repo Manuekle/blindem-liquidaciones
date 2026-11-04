@@ -169,6 +169,9 @@ Roles de administrador y colaborador, protección CSRF, límite de peticiones y 
 **¿Qué haría si el modelo de IA no está disponible?**
 Hay un modo simulado por reglas que funciona sin red. La aplicación nunca depende de la IA para calcular.
 
+**¿Cómo proteges las URLs de los contratos? ¿Se pueden adivinar?**
+Dos capas. La principal: toda ruta exige sesión y los módulos de administración tienen rol. La segunda: contratos, trabajadores y liquidaciones usan en la URL un UUID aleatorio, no el id secuencial, así que no se puede probar `/contratos/25`. Borrar contratos es solo de administrador. Si fuera multiempresa añadiría políticas por empresa.
+
 ### Preguntas trampa (responde con honestidad)
 
 - **"¿Esto está listo para producción real?"** → Es una base sólida y probada para el caso del Excel, pero faltaría revisión jurídica, auditoría de cambios y MFA antes de usarlo con clientes.

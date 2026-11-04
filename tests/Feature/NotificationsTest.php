@@ -42,7 +42,7 @@ class NotificationsTest extends TestCase
         $this->getJson('/notificaciones')->assertOk()->assertJsonCount(count($feed['items']), 'items');
 
         $contract = Contract::where('status', 'terminated')->doesntHave('settlements')->firstOrFail();
-        $this->post("/contratos/{$contract->id}/liquidacion")->assertRedirect();
+        $this->post("/contratos/{$contract->public_id}/liquidacion")->assertRedirect();
         $after = collect($this->getJson('/notificaciones')->json('items'))->where('title', 'Retiro sin liquidar');
         $this->assertCount($pending - 1, $after);
     }
@@ -53,12 +53,12 @@ class NotificationsTest extends TestCase
         $admin = $this->user('admin');
         $contract = Contract::where('status', 'terminated')->doesntHave('settlements')->firstOrFail();
 
-        $this->actingAs($collaborator)->post("/contratos/{$contract->id}/liquidacion")->assertRedirect();
+        $this->actingAs($collaborator)->post("/contratos/{$contract->public_id}/liquidacion")->assertRedirect();
 
         $this->assertSame(0, $collaborator->notifications()->where('type', ActivityNotification::class)->count());
         $notification = $admin->notifications()->where('type', ActivityNotification::class)->firstOrFail();
         $this->assertSame('Liquidación guardada', $notification->data['title']);
-        $this->assertStringStartsWith("/contratos/{$contract->id}/liquidaciones/", $notification->data['url']);
+        $this->assertStringStartsWith("/contratos/{$contract->public_id}/liquidaciones/", $notification->data['url']);
     }
 
     public function test_opening_marks_read_and_read_all_clears_the_count(): void

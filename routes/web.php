@@ -16,6 +16,11 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\WorkerController;
 use Illuminate\Support\Facades\Route;
 
+// Contracts, workers and settlements are addressed by random UUID, never by sequential id.
+foreach (['contract', 'worker', 'settlement'] as $parameter) {
+    Route::pattern($parameter, '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}');
+}
+
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'login'])->name('login');
     Route::post('/login', [AuthController::class, 'authenticate'])->name('login.submit')->middleware('throttle:5,1');
@@ -49,7 +54,6 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::get('contratos/{contract}', [ContractController::class, 'show'])->name('contracts.show');
     Route::get('contratos/{contract}/editar', [ContractController::class, 'edit'])->name('contracts.edit');
     Route::put('contratos/{contract}', [ContractController::class, 'update'])->name('contracts.update');
-    Route::delete('contratos/{contract}', [ContractController::class, 'destroy'])->name('contracts.destroy');
     Route::get('contratos/{contract}/liquidacion', [SettlementController::class, 'show'])->name('settlements.show');
     Route::post('contratos/{contract}/liquidacion', [SettlementController::class, 'store'])->name('settlements.store');
     Route::get('contratos/{contract}/excel', [SettlementController::class, 'export'])->name('settlements.export');
@@ -68,6 +72,7 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::middleware('admin')->group(function () {
         Route::resource('parametros-laborales', LaborParameterController::class)->only(['index', 'store', 'update', 'destroy'])->parameters(['parametros-laborales' => 'laborParameter'])->names('labor-parameters');
         Route::delete('trabajadores/{worker}', [WorkerController::class, 'destroy'])->name('workers.destroy');
+        Route::delete('contratos/{contract}', [ContractController::class, 'destroy'])->name('contracts.destroy');
         Route::get('empresas/nueva/crear', [CompanyController::class, 'create'])->name('companies.create');
         Route::post('empresas', [CompanyController::class, 'store'])->name('companies.store');
         Route::get('empresas/{company}/editar', [CompanyController::class, 'edit'])->name('companies.edit');

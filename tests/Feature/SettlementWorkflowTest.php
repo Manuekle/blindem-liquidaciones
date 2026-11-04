@@ -31,6 +31,11 @@ class SettlementWorkflowTest extends TestCase
         $this->seed();
     }
 
+    private function admin(): User
+    {
+        return User::where('role', 'admin')->firstOrFail();
+    }
+
     private function collaborator(): User
     {
         return User::where('role', 'collaborator')->firstOrFail();
@@ -60,7 +65,7 @@ class SettlementWorkflowTest extends TestCase
         $this->assertSame($before + 1, Contract::count());
         $created = Contract::latest('id')->firstOrFail();
         $this->assertTrue($created->wrongful_dismissal);
-        $this->post("/contratos/{$created->id}/liquidacion")->assertRedirect();
+        $this->post("/contratos/{$created->public_id}/liquidacion")->assertRedirect();
         $this->assertGreaterThan(0, $created->settlements()->firstOrFail()->result['indemnification']);
     }
 
@@ -92,30 +97,30 @@ class SettlementWorkflowTest extends TestCase
     {
         $contract = Contract::oldest('id')->firstOrFail();
         $contract->update(['end_date' => '2027-06-30']);
-        $this->actingAs($this->collaborator())->from("/contratos/{$contract->id}/liquidacion")
-            ->post("/contratos/{$contract->id}/liquidacion")->assertSessionHas('error');
+        $this->actingAs($this->collaborator())->from("/contratos/{$contract->public_id}/liquidacion")
+            ->post("/contratos/{$contract->public_id}/liquidacion")->assertSessionHas('error');
         $this->assertSame(0, Settlement::count());
-        $this->get("/contratos/{$contract->id}/liquidacion")->assertOk()->assertSee('No hay parámetros laborales para 2027');
+        $this->get("/contratos/{$contract->public_id}/liquidacion")->assertOk()->assertSee('No hay parámetros laborales para 2027');
     }
 
     public function test_legacy_combined_salary_needs_review_without_altering_existing_value(): void
     {
         $contract = Contract::oldest('id')->firstOrFail();
         $contract->update(['salary_components_reviewed' => false]);
-        $this->actingAs($this->collaborator())->get("/contratos/{$contract->id}/liquidacion")
+        $this->actingAs($this->collaborator())->get("/contratos/{$contract->public_id}/liquidacion")
             ->assertOk()->assertSee('Revisa y confirma');
-        $this->putJson("/contratos/{$contract->id}", [...$this->payload($contract), 'salary_components_reviewed' => false])
+        $this->putJson("/contratos/{$contract->public_id}", [...$this->payload($contract), 'salary_components_reviewed' => false])
             ->assertUnprocessable()->assertJsonValidationErrors('salary_components_reviewed');
         $this->assertSame(150000, (int) $contract->fresh()->average_extras);
-        $this->put("/contratos/{$contract->id}", [...$this->payload($contract), 'salary_components_reviewed' => true])->assertRedirect();
-        $this->get("/contratos/{$contract->id}/liquidacion")->assertOk()->assertSee('Neto a recibir');
+        $this->put("/contratos/{$contract->public_id}", [...$this->payload($contract), 'salary_components_reviewed' => true])->assertRedirect();
+        $this->get("/contratos/{$contract->public_id}/liquidacion")->assertOk()->assertSee('Neto a recibir');
     }
 
     public function test_snapshot_html_and_excel_survive_changes_to_contract_identity_and_parameters(): void
     {
         $contract = Contract::oldest('id')->firstOrFail();
         $contract->worker->update(['full_name' => '=2+2', 'document_number' => '0012345']);
-        $this->actingAs($this->collaborator())->post("/contratos/{$contract->id}/liquidacion")->assertRedirect();
+        $this->actingAs($this->collaborator())->post("/contratos/{$contract->public_id}/liquidacion")->assertRedirect();
         $snapshot = Settlement::firstOrFail();
         $savedInputs = $snapshot->inputs;
         $savedResult = $snapshot->result;
@@ -124,9 +129,9 @@ class SettlementWorkflowTest extends TestCase
         $contract->company->update(['name' => 'Empresa cambiada']);
         LaborParameter::where('year', 2026)->update(['min_wage' => 9000000, 'health_rate' => .03]);
 
-        $this->get("/contratos/{$contract->id}/liquidaciones/{$snapshot->id}")
+        $this->get("/contratos/{$contract->public_id}/liquidaciones/{$snapshot->public_id}")
             ->assertOk()->assertSee('=2+2')->assertDontSee('Nombre cambiado')->assertDontSee('Empresa cambiada');
-        $response = $this->get("/contratos/{$contract->id}/liquidaciones/{$snapshot->id}/excel")->assertOk();
+        $response = $this->get("/contratos/{$contract->public_id}/liquidaciones/{$snapshot->public_id}/excel")->assertOk();
         $path = tempnam(sys_get_temp_dir(), 'blindem-xlsx-');
         try {
             file_put_contents($path, $response->streamedContent());
@@ -148,8 +153,8 @@ class SettlementWorkflowTest extends TestCase
     public function test_contract_with_history_cannot_be_deleted(): void
     {
         $contract = Contract::oldest('id')->firstOrFail();
-        $this->actingAs($this->collaborator())->post("/contratos/{$contract->id}/liquidacion");
-        $this->from("/contratos/{$contract->id}")->delete("/contratos/{$contract->id}")->assertSessionHas('error');
+        $this->actingAs($this->collaborator())->post("/contratos/{$contract->public_id}/liquidacion");
+        $this->actingAs($this->admin())->from("/contratos/{$contract->public_id}")->delete("/contratos/{$contract->public_id}")->assertSessionHas('error');
         $this->assertDatabaseHas('contracts', ['id' => $contract->id]);
         $this->assertSame(1, Settlement::count());
     }
@@ -157,27 +162,27 @@ class SettlementWorkflowTest extends TestCase
     public function test_snapshot_id_cannot_be_accessed_through_another_contract(): void
     {
         $contract = Contract::oldest('id')->firstOrFail();
-        $this->actingAs($this->collaborator())->post("/contratos/{$contract->id}/liquidacion");
+        $this->actingAs($this->collaborator())->post("/contratos/{$contract->public_id}/liquidacion");
         $snapshot = Settlement::firstOrFail();
         $other = $contract->replicate();
         $other->save();
-        $this->get("/contratos/{$other->id}/liquidaciones/{$snapshot->id}")->assertNotFound();
-        $this->get("/contratos/{$other->id}/liquidaciones/{$snapshot->id}/excel")->assertNotFound();
+        $this->get("/contratos/{$other->public_id}/liquidaciones/{$snapshot->public_id}")->assertNotFound();
+        $this->get("/contratos/{$other->public_id}/liquidaciones/{$snapshot->public_id}/excel")->assertNotFound();
     }
 
     public function test_old_snapshots_remain_accessible_even_when_current_contract_cannot_be_calculated(): void
     {
         $contract = Contract::oldest('id')->firstOrFail();
-        $this->actingAs($this->collaborator())->post("/contratos/{$contract->id}/liquidacion");
+        $this->actingAs($this->collaborator())->post("/contratos/{$contract->public_id}/liquidacion");
         $snapshot = Settlement::firstOrFail();
         $inputs = $snapshot->inputs;
         unset($inputs['context']);
         $snapshot->update(['inputs' => $inputs]);
         $contract->update(['salary_components_reviewed' => false]);
-        $this->get("/contratos/{$contract->id}/liquidaciones/{$snapshot->id}")
+        $this->get("/contratos/{$contract->public_id}/liquidaciones/{$snapshot->public_id}")
             ->assertOk()->assertSee('Esta versión antigua no guardó la identificación');
-        $this->get("/contratos/{$contract->id}/liquidacion")->assertOk()->assertSee('Ver cálculo');
-        $this->get("/contratos/{$contract->id}/liquidaciones/{$snapshot->id}/excel")->assertOk();
+        $this->get("/contratos/{$contract->public_id}/liquidacion")->assertOk()->assertSee('Ver cálculo');
+        $this->get("/contratos/{$contract->public_id}/liquidaciones/{$snapshot->public_id}/excel")->assertOk();
     }
 
     public function test_custom_contract_code_uses_explicit_method(): void
@@ -258,8 +263,8 @@ class SettlementWorkflowTest extends TestCase
     public function test_all_operational_forms_render_for_each_role(): void
     {
         $contract = Contract::oldest('id')->firstOrFail();
-        $id = $contract->id;
-        $worker = $contract->worker_id;
+        $id = $contract->public_id;
+        $worker = $contract->worker->public_id;
         $this->actingAs($this->collaborator());
         foreach (['/', '/contratos', '/contratos/nuevo', "/contratos/{$id}", "/contratos/{$id}/editar", '/trabajadores', "/trabajadores/{$worker}", '/empresas'] as $path) {
             $this->get($path)->assertOk();
@@ -277,10 +282,10 @@ class SettlementWorkflowTest extends TestCase
         $this->get('/trabajadores/nuevo/crear')->assertOk();
         $this->post('/trabajadores', ['full_name' => 'Ana Torres', 'document_type_id' => $document, 'document_number' => '55555'])->assertRedirect()->assertSessionHasNoErrors();
         $worker = Worker::where('document_number', '55555')->firstOrFail();
-        $this->put("/trabajadores/{$worker->id}", ['full_name' => 'Ana María Torres', 'document_type_id' => $document, 'document_number' => '55555'])->assertRedirect();
+        $this->put("/trabajadores/{$worker->public_id}", ['full_name' => 'Ana María Torres', 'document_type_id' => $document, 'document_number' => '55555'])->assertRedirect();
         $this->assertSame('Ana María Torres', $worker->fresh()->full_name);
         $this->get("/contratos/nuevo?worker={$worker->id}")->assertOk()->assertSee('value="'.$worker->id.'" selected', false);
-        $this->delete("/trabajadores/{$worker->id}")->assertForbidden();
+        $this->delete("/trabajadores/{$worker->public_id}")->assertForbidden();
     }
 
     public function test_contract_with_blank_days_is_saved_as_automatic(): void
@@ -289,13 +294,15 @@ class SettlementWorkflowTest extends TestCase
         $this->actingAs($this->collaborator())->post('/contratos', $payload)->assertRedirect()->assertSessionHasNoErrors();
         $created = Contract::latest('id')->firstOrFail();
         $this->assertNull($created->pending_salary_days);
-        $this->get("/contratos/{$created->id}/liquidacion")->assertOk()->assertSee('auto desde la fecha de corte');
+        $this->get("/contratos/{$created->public_id}/liquidacion")->assertOk()->assertSee('auto desde la fecha de corte');
     }
 
     public function test_contract_without_history_can_still_be_deleted(): void
     {
         $contract = Contract::oldest('id')->firstOrFail();
-        $this->actingAs($this->collaborator())->delete("/contratos/{$contract->id}")->assertRedirect('/contratos');
+        $this->actingAs($this->collaborator())->delete("/contratos/{$contract->public_id}")->assertForbidden();
+        $this->assertDatabaseHas('contracts', ['id' => $contract->id]);
+        $this->actingAs($this->admin())->delete("/contratos/{$contract->public_id}")->assertRedirect('/contratos');
         $this->assertDatabaseMissing('contracts', ['id' => $contract->id]);
     }
 
@@ -342,5 +349,20 @@ class SettlementWorkflowTest extends TestCase
         $this->seed(DemoSettlementSeeder::class);
         $this->assertSame($terminated, Settlement::count());
         $this->assertGreaterThan(0, Settlement::sum('net_amount'));
+    }
+
+    public function test_urls_use_random_public_ids_not_sequential_numbers(): void
+    {
+        $contract = Contract::oldest('id')->firstOrFail();
+        $this->assertMatchesRegularExpression('/^[0-9a-f-]{36}$/', $contract->public_id);
+        $this->actingAs($this->collaborator())->get("/contratos/{$contract->public_id}")->assertOk();
+        $this->get("/contratos/{$contract->id}")->assertNotFound();
+        $this->get('/contratos/00000000-0000-4000-8000-000000000000')->assertNotFound();
+    }
+
+    public function test_guests_are_sent_to_login_for_contract_urls(): void
+    {
+        $contract = Contract::oldest('id')->firstOrFail();
+        $this->get("/contratos/{$contract->public_id}")->assertRedirect('/login');
     }
 }

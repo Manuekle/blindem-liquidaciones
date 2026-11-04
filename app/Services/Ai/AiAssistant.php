@@ -323,7 +323,12 @@ class AiAssistant
         $known = array_filter([...array_column($input['expiring_fixed'], 'id'), ...array_column($input['below_min_wage'], 'id'), ...array_column($input['terminated_without_settlement'], 'id'), $input['unreviewed_first']]);
 
         // Portfolio alerts are facts from the database; the rules state them exactly.
-        return ['insights' => array_slice($this->normaliseInsights((new Simulated\DashboardInsights)($input)['insights'], $known), 0, 4), 'source' => 'rules', 'fallback' => false];
+        $insights = array_slice($this->normaliseInsights((new Simulated\DashboardInsights)($input)['insights'], $known), 0, 4);
+        // The front end links with the public key, never the internal id.
+        $keys = Contract::whereIn('id', array_filter(array_column($insights, 'contract_id')))->pluck('public_id', 'id');
+        $insights = array_map(fn ($i) => $i + ['contract_key' => $keys[$i['contract_id'] ?? null] ?? null], $insights);
+
+        return ['insights' => $insights, 'source' => 'rules', 'fallback' => false];
     }
 
     /** @return array{filters: array, understood: array, message: string, source: string, fallback: bool} */

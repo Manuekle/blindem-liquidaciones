@@ -48,30 +48,30 @@ class AiAssistantTest extends TestCase
         $contract = Contract::oldest('id')->firstOrFail();
         $fixed = ContractType::where('calculation_method', 'fijo')->firstOrFail();
         $contract->update(['contract_type_id' => $fixed->id, 'agreed_end_date' => null]);
-        $review = $this->getJson("/ia/contratos/{$contract->id}/revision")->assertOk()->assertJsonPath('data.status', 'attention')->json('data');
+        $review = $this->getJson("/ia/contratos/{$contract->public_id}/revision")->assertOk()->assertJsonPath('data.status', 'attention')->json('data');
         $this->assertContains('Término fijo sin fecha pactada', array_column($review['findings'], 'title'));
 
         $contract->update(['status' => 'active', 'end_date' => null, 'termination_reason_id' => null, 'agreed_end_date' => now()->addDays(20)->toDateString()]);
-        $titles = array_column($this->getJson("/ia/contratos/{$contract->id}/revision")->assertOk()->json('data.findings'), 'title');
+        $titles = array_column($this->getJson("/ia/contratos/{$contract->public_id}/revision")->assertOk()->json('data.findings'), 'title');
         $this->assertContains('El contrato vence en 20 días', $titles);
     }
 
     public function test_explanation_and_answers_use_the_settlement_figures(): void
     {
         $contract = Contract::oldest('id')->firstOrFail();
-        $this->post("/contratos/{$contract->id}/liquidacion");
+        $this->post("/contratos/{$contract->public_id}/liquidacion");
         $net = Settlement::firstOrFail()->net_amount;
 
-        $this->getJson("/ia/contratos/{$contract->id}/explicacion")->assertOk()
+        $this->getJson("/ia/contratos/{$contract->public_id}/explicacion")->assertOk()
             ->assertSee('$'.number_format($net, 0, ',', '.'))->assertJsonPath('meta.provider', 'Simulado');
-        $this->postJson("/ia/contratos/{$contract->id}/preguntar", ['question' => '¿Cuándo se debe pagar?'])
+        $this->postJson("/ia/contratos/{$contract->public_id}/preguntar", ['question' => '¿Cuándo se debe pagar?'])
             ->assertOk()->assertSee('art. 65 CST');
     }
 
     public function test_questions_outside_the_rules_are_answered_from_the_knowledge_base(): void
     {
         $contract = Contract::oldest('id')->firstOrFail();
-        $ask = fn (string $question) => $this->postJson("/ia/contratos/{$contract->id}/preguntar", ['question' => $question])->assertOk()->json('data');
+        $ask = fn (string $question) => $this->postJson("/ia/contratos/{$contract->public_id}/preguntar", ['question' => $question])->assertOk()->json('data');
 
         $data = $ask('¿Me pueden negar el certificado laboral?');
         $this->assertSame('answered', $data['status']);
@@ -92,18 +92,18 @@ class AiAssistantTest extends TestCase
     {
         $contract = Contract::oldest('id')->firstOrFail();
         $contract->update(['salary_components_reviewed' => false]);
-        $this->getJson("/ia/contratos/{$contract->id}/explicacion")->assertUnprocessable()->assertSee('Revisa y confirma');
+        $this->getJson("/ia/contratos/{$contract->public_id}/explicacion")->assertUnprocessable()->assertSee('Revisa y confirma');
     }
 
     public function test_letter_uses_a_saved_settlement_of_the_same_contract_only(): void
     {
         [$first, $other] = Contract::oldest('id')->take(2)->get();
-        $this->post("/contratos/{$first->id}/liquidacion");
+        $this->post("/contratos/{$first->public_id}/liquidacion");
         $saved = Settlement::firstOrFail();
 
-        $this->postJson("/ia/contratos/{$first->id}/carta?settlement={$saved->id}", ['kind' => 'paz_y_salvo'])->assertOk()
+        $this->postJson("/ia/contratos/{$first->public_id}/carta?settlement={$saved->id}", ['kind' => 'paz_y_salvo'])->assertOk()
             ->assertJsonPath('data.subject', 'Paz y salvo laboral — '.$first->worker->full_name);
-        $this->postJson("/ia/contratos/{$other->id}/carta?settlement={$saved->id}", ['kind' => 'liquidacion'])->assertNotFound();
+        $this->postJson("/ia/contratos/{$other->public_id}/carta?settlement={$saved->id}", ['kind' => 'liquidacion'])->assertNotFound();
     }
 
     public function test_search_turns_a_sentence_into_filters(): void

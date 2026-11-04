@@ -432,9 +432,9 @@ const initInsights = section => {
     try {
       const data = await aiRequest(section.dataset.url, { quiet: true });
       const linkFor = insight => {
-        if (!insight.contract_id || !insight.action) return '';
+        if (!insight.contract_key || !insight.action) return '';
         const path = { settlement: '/liquidacion', edit: '/editar' }[insight.route] || '';
-        return `<a class="ai-insight-link" href="${section.dataset.contractsUrl}/${insight.contract_id}${path}">${escapeHtml(insight.action)} ${icon('arrow-right')}</a>`;
+        return `<a class="ai-insight-link" href="${section.dataset.contractsUrl}/${insight.contract_key}${path}">${escapeHtml(insight.action)} ${icon('arrow-right')}</a>`;
       };
       output.innerHTML = `<div class="ai-insight-grid">${data.insights.map(insight => `<article class="ai-insight ${insight.tone}"><span class="ai-insight-tone" aria-hidden="true"></span><h3>${escapeHtml(insight.title)}${aiTag(insight)}</h3><p>${escapeHtml(insight.detail)}</p>${linkFor(insight)}</article>`).join('')}</div>`;
     } catch (error) {

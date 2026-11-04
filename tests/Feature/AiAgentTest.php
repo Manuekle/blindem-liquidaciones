@@ -38,7 +38,7 @@ class AiAgentTest extends TestCase
     {
         $contract = Contract::oldest('id')->firstOrFail();
 
-        $this->get("/contratos/{$contract->id}")->assertOk()
+        $this->get("/contratos/{$contract->public_id}")->assertOk()
             ->assertSee('data-agent', false)
             ->assertSee('"page_contract":'.$contract->id, false)
             ->assertSee('js/agent.js', false)
@@ -118,7 +118,7 @@ class AiAgentTest extends TestCase
     public function test_follow_up_questions_stay_on_the_same_contract_and_use_its_figures(): void
     {
         $contract = Contract::oldest('id')->firstOrFail();
-        $this->post("/contratos/{$contract->id}/liquidacion");
+        $this->post("/contratos/{$contract->public_id}/liquidacion");
         $saved = Settlement::firstOrFail();
 
         $data = $this->ask('¿Cuándo se debe pagar?', ['contract' => $contract->id, 'settlement' => $saved->id]);
@@ -144,7 +144,7 @@ class AiAgentTest extends TestCase
         $data = $this->ask('abre la liquidación de Laura');
 
         $this->assertSame('navigate', $data['intent']);
-        $this->assertStringEndsWith('/contratos/'.$laura->contracts()->value('id').'/liquidacion', $data['actions'][0]['href']);
+        $this->assertStringEndsWith('/contratos/'.$laura->contracts()->value('public_id').'/liquidacion', $data['actions'][0]['href']);
     }
 
     public function test_without_a_contract_it_asks_who_instead_of_guessing(): void

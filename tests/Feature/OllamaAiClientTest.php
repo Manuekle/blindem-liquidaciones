@@ -42,11 +42,11 @@ class OllamaAiClientTest extends TestCase
     {
         Http::fake();
         $contract = Contract::oldest('id')->firstOrFail();
-        $this->post("/contratos/{$contract->id}/liquidacion");
+        $this->post("/contratos/{$contract->public_id}/liquidacion");
 
-        $this->getJson("/ia/contratos/{$contract->id}/revision")->assertOk()->assertJsonPath('data.source', 'rules')->assertJsonPath('meta.provider', 'Ollama · qwen-test');
+        $this->getJson("/ia/contratos/{$contract->public_id}/revision")->assertOk()->assertJsonPath('data.source', 'rules')->assertJsonPath('meta.provider', 'Ollama · qwen-test');
         $this->getJson('/ia/resumen')->assertOk()->assertJsonPath('data.source', 'rules');
-        $this->postJson("/ia/contratos/{$contract->id}/carta", ['kind' => 'liquidacion'])->assertOk()->assertJsonPath('data.source', 'rules');
+        $this->postJson("/ia/contratos/{$contract->public_id}/carta", ['kind' => 'liquidacion'])->assertOk()->assertJsonPath('data.source', 'rules');
         Http::assertNothingSent();
     }
 
@@ -80,7 +80,7 @@ class OllamaAiClientTest extends TestCase
         $contract = Contract::oldest('id')->firstOrFail();
         $this->answer(['headline' => 'Recibes $4.800.254 en total.', 'paragraphs' => ['Te pagan $700.36 de más.', 'Según el art. 12 tienes 15 días.'], 'followups' => []]);
 
-        $this->getJson("/ia/contratos/{$contract->id}/explicacion")->assertOk()
+        $this->getJson("/ia/contratos/{$contract->public_id}/explicacion")->assertOk()
             ->assertJsonPath('data.source', 'rules')->assertJsonPath('data.fallback', true);
     }
 
@@ -88,7 +88,7 @@ class OllamaAiClientTest extends TestCase
     {
         $contract = Contract::oldest('id')->firstOrFail();
 
-        return $this->postJson("/ia/contratos/{$contract->id}/preguntar", ['question' => $question])->assertOk()->json('data');
+        return $this->postJson("/ia/contratos/{$contract->public_id}/preguntar", ['question' => $question])->assertOk()->json('data');
     }
 
     public function test_questions_the_rules_cover_never_call_the_model(): void
