@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blindem Liquidaciones · Sustentación</title>
+<style>
+:root{--ink:#14161f;--mut:#5c6070;--line:#e3e6ef;--bg:#fff;--soft:#f4f6fb;--brand:#2938d8;--brand2:#e8ebff;--ok:#0f8a5f;--warn:#b45309;--bad:#c2331f}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#0f1117;font-family:"Hanken Grotesk",-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink)}
+.deck{position:fixed;inset:0;display:grid;place-items:center}
+.slide{position:absolute;width:min(100vw,177.78vh);aspect-ratio:16/9;background:var(--bg);padding:5.2% 6%;display:none;flex-direction:column;overflow:hidden;font-size:min(1.68vw,2.99vh)}
+.slide.on{display:flex}
+.kicker{color:var(--brand);font-weight:600;font-size:.62em;letter-spacing:.02em;margin-bottom:.5em}
+h1{font-size:2.9em;letter-spacing:-.04em;line-height:1.05;font-weight:650}
+h2{font-size:1.85em;letter-spacing:-.035em;line-height:1.1;font-weight:650;margin-bottom:.55em}
+p,li{font-size:.82em;line-height:1.5;color:var(--ink)}
+.mut{color:var(--mut)}
+ul{padding-left:1.1em;display:grid;gap:.45em}
+.cols{display:grid;gap:1.6em;flex:1;min-height:0}
+.c2{grid-template-columns:1fr 1fr}.c3{grid-template-columns:repeat(3,1fr)}.c4{grid-template-columns:repeat(4,1fr)}
+.card{background:var(--soft);border:1px solid var(--line);border-radius:.7em;padding:1em 1.1em}
+.card h3{font-size:.88em;font-weight:650;margin-bottom:.4em;letter-spacing:-.01em}
+.card p,.card li{font-size:.7em}
+.big{font-size:2.3em;font-weight:650;letter-spacing:-.04em;color:var(--brand);line-height:1}
+table{width:100%;border-collapse:collapse;font-size:.68em}
+th,td{padding:.55em .7em;border-bottom:1px solid var(--line);text-align:left}
+th{color:var(--mut);font-weight:550}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+tr.t td{font-weight:650;background:var(--brand2)}
+.tag{display:inline-block;font-size:.58em;padding:.2em .6em;border-radius:99px;background:var(--brand2);color:var(--brand);font-weight:600}
+.tag.ok{background:#dcf5ea;color:var(--ok)}.tag.warn{background:#fdecd2;color:var(--warn)}.tag.bad{background:#fbe0db;color:var(--bad)}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.88em;background:var(--soft);padding:.1em .35em;border-radius:.3em}
+pre{background:#12142a;color:#dfe3ff;border-radius:.7em;padding:1em 1.2em;font-size:.58em;line-height:1.55;overflow:hidden;font-family:ui-monospace,Menlo,monospace}
+.flow{display:flex;align-items:stretch;gap:.5em}
+.flow .card{flex:1;text-align:center}
+.flow .arr{align-self:center;color:var(--brand);font-size:1.1em}
+.foot{position:absolute;left:6%;right:6%;bottom:2.6%;display:flex;justify-content:space-between;font-size:.5em;color:var(--mut)}
+.cover{background:linear-gradient(135deg,#1c26a8,#2938d8 55%,#5b6cff);color:#fff;justify-content:center}
+.cover h1,.cover p,.cover .kicker{color:#fff}.cover p{opacity:.85;font-size:1em;margin-top:1em}
+.cover .foot{color:#ffffffaa}
+.notes{display:none;position:fixed;left:0;right:0;bottom:0;background:#12142aee;color:#e8ebff;padding:1.2em 2em;font-size:15px;line-height:1.5;z-index:9;max-height:34vh;overflow:auto}
+body.notes-on .notes{display:block}
+.hint{position:fixed;top:10px;right:14px;color:#ffffff66;font-size:12px;z-index:5}
+.bar{position:fixed;left:0;bottom:0;height:3px;background:var(--brand);transition:width .2s;z-index:8}
+@media print{html,body{background:#fff;height:auto}.deck{position:static;display:block}.slide{display:flex!important;position:relative;width:100%;height:100vh;aspect-ratio:auto;page-break-after:always;font-size:2.2vh}.notes,.hint,.bar{display:none!important}}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<!-- 1 -->
+<section class="slide cover" data-n="Saludo y contexto: soy el desarrollador. Construí una aplicación web que automatiza la liquidación de contratos laborales en Colombia. Voy a ir del negocio a la técnica: primero qué problema resuelve y qué reglas aplica, luego cómo lo programé, cómo lo probé y cómo lo desplegué.">
+  <div class="kicker">Prueba técnica · Sustentación</div>
+  <h1>Blindem Liquidaciones</h1>
+  <p>Del problema laboral a la solución en código:<br>reglas de negocio, motor de cálculo y despliegue.</p>
+  <div class="foot"><span>Laravel 12 · PHP 8.3 · PostgreSQL 16 · Docker · Render</span><span>Noviembre 2026</span></div>
+</section>
+
+<!-- 2 -->
+<section class="slide" data-n="Agenda en dos bloques: negocio (por qué y qué reglas) y técnica (cómo). Insisto en que cada decisión técnica nace de una regla de negocio.">
+  <div class="kicker">Agenda</div>
+  <h2>De dónde venimos y a dónde vamos</h2>
+  <div class="cols c2">
+    <div class="card"><h3>Parte 1 · Negocio</h3><ul><li>El problema de liquidar a mano</li><li>Qué se paga al terminar un contrato</li><li>Reglas legales y bases de cálculo</li><li>El Excel de prueba: casos y hallazgos</li></ul></div>
+    <div class="card"><h3>Parte 2 · Técnica</h3><ul><li>Arquitectura y modelo de datos</li><li>Motor de cálculo determinista</li><li>Snapshots, IA con verificación, seguridad</li><li>Pruebas, Docker y despliegue en Render</li><li>Demo y siguientes pasos</li></ul></div>
+  </div>
+</section>
+
+<!-- 3 -->
+<section class="slide" data-n="El problema real: la liquidación se hace en plantillas Excel. Cada analista copia, cambia fechas, cuenta días a mano y las fórmulas se rompen. Un error se paga en dinero o en una demanda. Objetivo: cálculo correcto, explicable y auditable.">
+  <div class="kicker">Negocio · Problema</div>
+  <h2>Liquidar a mano en Excel es lento y riesgoso</h2>
+  <div class="cols c3">
+    <div class="card"><div class="big">1</div><h3>Errores de cálculo</h3><p>Días 30/360 contados a mano, bases mal sumadas, divisores equivocados.</p></div>
+    <div class="card"><div class="big">2</div><h3>Normas cambiantes</h3><p>Salario mínimo y auxilio cambian cada año; la plantilla queda con valores viejos.</p></div>
+    <div class="card"><div class="big">3</div><h3>Sin trazabilidad</h3><p>Nadie sabe con qué parámetros se calculó una liquidación pasada.</p></div>
+  </div>
+  <p class="mut" style="margin-top:1em"><b>Objetivo:</b> calcular con la norma del año, explicar cada cifra, exportar a Excel y conservar el resultado tal como se entregó.</p>
+</section>
+
+<!-- 4 -->
+<section class="slide" data-n="Conceptos que componen una liquidación. Devengados: cesantías, intereses, prima, vacaciones, salario y auxilio pendientes, e indemnización si el despido es sin justa causa. Deducciones: salud y pensión sobre el salario, anticipos y otras. Neto es devengado menos deducciones.">
+  <div class="kicker">Negocio · Qué se paga</div>
+  <h2>Anatomía de una liquidación</h2>
+  <div class="cols c2">
+    <div><table>
+      <tr><th>Devengado</th><th>Fórmula base</th></tr>
+      <tr><td>Cesantías</td><td>Base prestacional × días / 360</td></tr>
+      <tr><td>Intereses de cesantías</td><td>Cesantías × días × 12% / 360</td></tr>
+      <tr><td>Prima de servicios</td><td>Base prestacional × días / 360</td></tr>
+      <tr><td>Vacaciones</td><td>Base vacaciones × días</td></tr>
+      <tr><td>Salario y auxilio pendientes</td><td>Valor mensual / 30 × días</td></tr>
+      <tr><td>Indemnización (art. 64 CST)</td><td>Solo despido sin justa causa</td></tr>
+    </table></div>
+    <div class="card"><h3>Deducciones</h3><ul><li>Salud 4% y pensión 4%</li><li>Anticipos y otras retenciones</li></ul><h3 style="margin-top:1em">Resultado</h3><p><b>Neto = total devengado − total deducciones</b></p><p class="mut" style="margin-top:.6em">Importes en pesos enteros (COP), redondeo mitad hacia arriba por concepto.</p></div>
+  </div>
+</section>
+
+<!-- 5 -->
+<section class="slide" data-n="Reglas de negocio importantes. Año comercial 360 días. Auxilio de transporte solo hasta 2 salarios mínimos. Indemnización indefinido: menos de 10 SMLMV 30 días el primer año y 20 por año adicional; desde 10, 20 y 15. Término fijo: días faltantes. Los parámetros salen de la tabla por vigencia.">
+  <div class="kicker">Negocio · Reglas</div>
+  <h2>Reglas que gobiernan el cálculo</h2>
+  <div class="cols c2">
+    <div class="card"><h3>Convención 30/360</h3><p>Meses de 30 días, año de 360. Días automáticos desde las fechas; si el usuario escribe un valor (incluso 0) prevalece.</p></div>
+    <div class="card"><h3>Auxilio de transporte</h3><p>Se incluye en la base prestacional solo si salario + promedios no superan 2 SMLMV.</p></div>
+    <div class="card"><h3>Indemnización · indefinido</h3><p>&lt; 10 SMLMV: 30 días primer año + 20 por año adicional.<br>≥ 10 SMLMV: 20 + 15. Proporcional por fracción (CST art. 64).</p></div>
+    <div class="card"><h3>Indemnización · fijo y obra</h3><p>Fijo: salarios de los días faltantes del plazo. Obra o labor: valor manual sustentado, mínimo 15 días.</p></div>
+  </div>
+  <p class="mut" style="margin-top:.8em">Vigencia: salario mínimo y auxilio 2023–2026 guardados con su decreto como fuente.</p>
+</section>
+
+<!-- 6 -->
+<section class="slide" data-n="Estos son los dos casos del Excel de prueba. Misma persona, Juan Carlos Pérez, salario 1.750.905, auxilio 249.095, extras promedio 150.000. Hoja 1: 15 enero 2023 a 30 junio 2024, sin indemnización. Hoja 2: desde 2021, despido sin justa causa, indefinido.">
+  <div class="kicker">Negocio · Caso de prueba</div>
+  <h2>El Excel de la prueba: dos hojas, un trabajador</h2>
+  <div class="cols c2">
+    <div class="card"><h3>Hoja 1 · Terminación de contrato</h3><p>Ingreso 2023-01-15 · retiro 2024-06-30<br>Básico $1.750.905 · auxilio $249.095 · extras $150.000<br>180 días cesantías/prima · 15 de vacaciones y salario</p><div class="big" style="margin-top:.5em">$3.180.899</div><p class="mut">neto a recibir</p></div>
+    <div class="card"><h3>Hoja 2 · Despido sin justa causa</h3><p>Ingreso 2021-03-15 · retiro 2024-06-30 · indefinido<br>1.204 días calendario · 75,97 días de indemnización<br>SMLMV 2024: $1.300.000</p><div class="big" style="margin-top:.5em">$7.614.926</div><p class="mut">neto (incluye indemnización $4.434.027)</p></div>
+  </div>
+</section>
+
+<!-- 7 -->
+<section class="slide" data-n="Al analizar el Excel encontré inconsistencias frente a la norma. Vacaciones divide por 720 una cantidad que son días de descanso, lo que da 39.602 en lugar de 875.453. Salud y pensión incluyen las vacaciones. La indemnización usa solo el básico, no el salario con promedios. En término fijo usa 180 días constantes. No las corregí a escondidas: las documenté.">
+  <div class="kicker">Negocio · Hallazgos</div>
+  <h2>La plantilla tiene supuestos que conviene explicitar</h2>
+  <table>
+    <tr><th>Concepto</th><th>Plantilla Excel</th><th>Criterio legal ajustado</th></tr>
+    <tr><td>Vacaciones (15 días)</td><td>(básico+extras) × 15 / 720 = <b>$39.602</b></td><td>base / 30 × 15 días de descanso = <b>$875.453</b></td></tr>
+    <tr><td>Base de salud y pensión</td><td>Salario pendiente + vacaciones</td><td>Solo salario pendiente</td></tr>
+    <tr><td>Base de indemnización</td><td>Solo salario básico</td><td>Básico + promedios salariales (Corte Suprema SL1659-2025)</td></tr>
+    <tr><td>Término fijo</td><td>180 días constantes</td><td>Días reales que faltan del plazo</td></tr>
+  </table>
+  <p class="mut" style="margin-top:.8em">Decisión: no esconder la diferencia ni imponer una sola verdad → <b>dos métodos seleccionables por contrato</b>.</p>
+</section>
+
+<!-- 8 -->
+<section class="slide" data-n="Resultado de la decisión. El método Plantilla Blindem reproduce el Excel al peso en ambos casos. El método Legal ajustado da cifras mayores porque corrige vacaciones e indemnización. El usuario elige por contrato y queda guardado en el snapshot.">
+  <div class="kicker">Negocio · Decisión</div>
+  <h2>Dos métodos, una cifra defendible cada uno</h2>
+  <table>
+    <tr><th></th><th class="n">Plantilla Blindem</th><th class="n">Legal ajustado</th><th class="n">Excel</th></tr>
+    <tr><td>Hoja 1 · vacaciones</td><td class="n">$39.602</td><td class="n">$875.453</td><td class="n">$39.602</td></tr>
+    <tr><td>Hoja 1 · neto</td><td class="n">$3.180.899</td><td class="n">$4.019.918</td><td class="n">$3.180.899</td></tr>
+    <tr><td>Hoja 2 · indemnización</td><td class="n">$4.434.027</td><td class="n">$4.813.890</td><td class="n">$4.434.027</td></tr>
+    <tr class="t"><td>Hoja 2 · neto</td><td class="n">$7.614.926</td><td class="n">$8.833.808</td><td class="n">$7.614.926</td></tr>
+  </table>
+  <p style="margin-top:1em"><span class="tag ok">Cuadra al peso</span>&nbsp; Plantilla = Excel en ambas hojas, verificado con pruebas automáticas y en la app local.</p>
+</section>
+
+<!-- 9 -->
+<section class="slide" data-n="Pasamos a la parte técnica. Monolito Laravel 12 con PHP 8.3 y PostgreSQL 16. Server-rendered con Blade, JS vanilla sin build de frontend. Elegí simplicidad operativa: un contenedor de app y uno de base de datos.">
+  <div class="kicker">Técnica · Arquitectura</div>
+  <h2>Monolito simple, capas claras</h2>
+  <div class="flow">
+    <div class="card"><h3>Navegador</h3><p>Blade + JS vanilla<br>sin build</p></div><div class="arr">→</div>
+    <div class="card"><h3>Controladores</h3><p>Validación, roles,<br>CSRF, rutas</p></div><div class="arr">→</div>
+    <div class="card"><h3>Servicios</h3><p><code>SettlementInputs</code><br><code>LaborSettlementCalculator</code></p></div><div class="arr">→</div>
+    <div class="card"><h3>PostgreSQL 16</h3><p>Contratos, parámetros,<br>snapshots JSON</p></div>
+  </div>
+  <div class="cols c3" style="margin-top:1.2em;flex:0">
+    <div class="card"><h3>Laravel 12 · PHP 8.3</h3><p>Eloquent, migraciones, middleware de roles.</p></div>
+    <div class="card"><h3>Sin dependencias pesadas</h3><p>Solo PhpSpreadsheet para el Excel.</p></div>
+    <div class="card"><h3>Servicios con una función</h3><p>Controladores delgados, reglas en servicios.</p></div>
+  </div>
+</section>
+
+<!-- 10 -->
+<section class="slide" data-n="Modelo de datos. Trabajadores, empresas y contratos. Catálogos configurables: tipos de documento, cargos, tipo de contrato con método de cálculo, motivos de retiro con bandera de indemnización. labor_parameters guarda salario mínimo, auxilio y tarifas por año con su fuente. settlements guarda inputs y result como JSON: es el snapshot.">
+  <div class="kicker">Técnica · Datos</div>
+  <h2>Modelo de datos orientado a la norma</h2>
+  <div class="cols c2">
+    <div class="card"><h3>Entidades</h3><ul><li><code>workers</code>, <code>companies</code>, <code>users</code> (admin / colaborador)</li><li><code>contracts</code>: fechas, salario, promedios, días opcionales, <code>settlement_method</code></li><li>Catálogos: tipo de contrato (con método), motivo de retiro (<code>implies_indemnification</code>), cargos</li></ul></div>
+    <div class="card"><h3>Decisiones</h3><ul><li><code>labor_parameters</code> por año: SMLMV, auxilio, tarifas y decreto fuente</li><li><code>settlements</code>: <code>inputs</code> + <code>result</code> JSON + versión del motor = snapshot</li><li>Índices en llaves foráneas; no se borra lo que tiene historial</li><li>Días en <code>NULL</code> = automáticos</li></ul></div>
+  </div>
+</section>
+
+<!-- 11 -->
+<section class="slide" data-n="Corazón del sistema: un servicio puro, sin acceso a base de datos ni a la fecha implícita salvo cuando falta. Recibe un array de entradas y devuelve un array de resultados. Eso lo hace determinista y fácil de probar. Enteros en COP, redondeo half-up por concepto. Muestro un fragmento del método template.">
+  <div class="kicker">Técnica · Motor</div>
+  <h2><code>LaborSettlementCalculator</code>: función pura y determinista</h2>
+  <div class="cols c2">
+    <ul>
+      <li>Entrada: array con fechas, salarios, parámetros del año y método</li>
+      <li>Salida: importes enteros, días usados, advertencias y <b>fórmulas en texto</b></li>
+      <li>Sin base de datos: <code>SettlementInputs</code> arma las entradas desde el contrato</li>
+      <li>Lanza <code>DomainException</code> ante datos inválidos; el controlador la muestra</li>
+      <li>Versionado (<code>VERSION = 2.2.0</code>) para saber con qué reglas se calculó</li>
+    </ul>
+    <pre>$template = $method === 'template';
+$vacBase  = $template ? $salaryBase
+                      : $salary + $surcharges;
+$vacation = $template
+  ? money($vacBase * $vacDays / 720)
+  : money(($vacBase / 30) * $vacDays);
+
+$contribBase = $template
+  ? $salaryDue + $vacation
+  : $salaryDue;
+$health = money($contribBase * $healthRate);</pre>
+  </div>
+</section>
+
+<!-- 12 -->
+<section class="slide" data-n="Flujo funcional completo. Se crea el contrato, la IA revisa, se calcula, se explica, se exporta a Excel y se guarda el snapshot. Exportar y consultar el historial no recalcula: usa lo guardado.">
+  <div class="kicker">Técnica · Flujo</div>
+  <h2>De contrato a liquidación guardada</h2>
+  <div class="flow">
+    <div class="card"><h3>1 Contrato</h3><p>Fechas, salario, método</p></div><div class="arr">→</div>
+    <div class="card"><h3>2 Parámetros</h3><p>SMLMV y tarifas del año de retiro</p></div><div class="arr">→</div>
+    <div class="card"><h3>3 Cálculo</h3><p>Motor con días automáticos</p></div><div class="arr">→</div>
+    <div class="card"><h3>4 Excel</h3><p>Desglose + fuentes</p></div><div class="arr">→</div>
+    <div class="card"><h3>5 Snapshot</h3><p>Historial inmutable</p></div>
+  </div>
+  <div class="cols c2" style="margin-top:1.2em;flex:0">
+    <div class="card"><h3>Inmutabilidad</h3><p>Cada liquidación guarda entradas, tarifas, fuentes y versión. Si cambia la norma, el pasado no se altera.</p></div>
+    <div class="card"><h3>Excel generado</h3><p>Hoja de liquidación con firmas y hoja de parámetros y fuentes. Texto escapado para evitar inyección de fórmulas.</p></div>
+  </div>
+</section>
+
+<!-- 13 -->
+<section class="slide" data-n="La IA es un complemento, no la fuente de verdad. Hay un modo simulado por reglas, sin red, y un modo Ollama local con RAG sobre una base de conocimiento de normas. Cada respuesta del modelo se verifica contra los datos reales y, si no coincide, se descarta y se usa la respuesta por reglas. La IA nunca cambia una cifra.">
+  <div class="kicker">Técnica · IA</div>
+  <h2>IA que explica, nunca calcula</h2>
+  <div class="cols c3">
+    <div class="card"><h3>Híbrido</h3><p>Modo <code>simulated</code> (reglas, sin red) por defecto; <code>ollama</code> opcional, local.</p></div>
+    <div class="card"><h3>RAG con fuentes</h3><p>Base de conocimiento de normas en markdown; embeddings y búsqueda, con citas.</p></div>
+    <div class="card"><h3>Verificación</h3><p>Lo que dice el modelo se contrasta con los datos; si no coincide se descarta.</p></div>
+  </div>
+  <ul style="margin-top:1em"><li>Tareas: explicar liquidación, responder preguntas, extraer contrato desde texto libre, revisar riesgos, búsqueda en lenguaje natural, carta al trabajador</li><li>Cálculo y dinero siempre pasan por el motor determinista</li></ul>
+</section>
+
+<!-- 14 -->
+<section class="slide" data-n="Calidad y seguridad. Pruebas unitarias del motor y de feature para flujos. Las cifras del Excel son pruebas de aceptación. Seguridad: roles, CSRF, cuentas desactivables, límite de peticiones, seeders demo bloqueados en producción, texto escapado en Excel.">
+  <div class="kicker">Técnica · Calidad</div>
+  <h2>Probado contra el Excel, no solo contra mi criterio</h2>
+  <div class="cols c2">
+    <div class="card"><h3>Pruebas</h3><ul><li>PHPUnit: unitarias del motor y de flujo completo (482 aserciones)</li><li><b>Aceptación:</b> hoja 1 = $3.180.899 y hoja 2 = $7.614.926 al peso</li><li>SQLite en memoria: nunca tocan la base de desarrollo</li><li>Método legal queda por defecto y con sus propias pruebas</li></ul></div>
+    <div class="card"><h3>Seguridad</h3><ul><li>Roles admin / colaborador y usuarios desactivables</li><li>CSRF, límite de peticiones, sesiones</li><li>Seeders demo bloqueados en producción</li><li>Celdas de Excel como texto explícito</li><li>Puerto local solo en <code>127.0.0.1</code></li></ul></div>
+  </div>
+</section>
+
+<!-- 15 -->
+<section class="slide" data-n="Despliegue. Local con Docker Compose: app y postgres, código montado. Producción en Render: imagen Docker multietapa production, PostgreSQL gestionado, auto-deploy desde la rama main. El entrypoint corre migraciones y seeders idempotentes. Hoy hice push y el despliegue quedó live con la migración nueva.">
+  <div class="kicker">Técnica · Despliegue</div>
+  <h2>Mismo contenedor en local y en producción</h2>
+  <div class="cols c2">
+    <div class="card"><h3>Local</h3><ul><li><code>docker compose up</code>: app (Apache+PHP 8.3) y PostgreSQL 16</li><li>Código montado: cambios sin reconstruir</li><li><code>sh scripts/setup-local.sh</code> para arrancar</li></ul></div>
+    <div class="card"><h3>Producción · Render</h3><ul><li>Dockerfile multietapa, target <code>production</code></li><li>PostgreSQL gestionado; auto-deploy desde <code>main</code></li><li>Entrypoint: <code>migrate --force</code>, seeders idempotentes, cachés de config/rutas/vistas</li></ul></div>
+  </div>
+  <p class="mut" style="margin-top:.8em">Flujo: commit → push a <code>main</code> → build → migración → live. Sin pasos manuales.</p>
+</section>
+
+<!-- 16 -->
+<section class="slide" data-n="Guion de demo, 4 minutos. 1) Login. 2) Contratos: abrir los casos de Juan Carlos Pérez del Excel. 3) Liquidación método Plantilla: mostrar neto 3.180.899. 4) Cambiar a Legal ajustado y mostrar la diferencia. 5) Hoja 2 con indemnización. 6) Exportar Excel y abrir hoja de fuentes. 7) Historial: snapshot guardado.">
+  <div class="kicker">Demo</div>
+  <h2>Guion de la demo en vivo</h2>
+  <div class="flow">
+    <div class="card"><h3>1</h3><p>Contrato de Juan Carlos Pérez, hoja 1</p></div><div class="arr">→</div>
+    <div class="card"><h3>2</h3><p>Liquidación: método Plantilla, neto $3.180.899</p></div><div class="arr">→</div>
+    <div class="card"><h3>3</h3><p>Cambio a Legal ajustado y comparación</p></div><div class="arr">→</div>
+    <div class="card"><h3>4</h3><p>Hoja 2: indemnización $4.434.027</p></div><div class="arr">→</div>
+    <div class="card"><h3>5</h3><p>Excel y snapshot en historial</p></div>
+  </div>
+  <p class="mut" style="margin-top:1em">Plan B si falla la red: la versión local en Docker tiene los mismos datos.</p>
+</section>
+
+<!-- 17 -->
+<section class="slide" data-n="Ser honesto con los límites suma credibilidad. No es nómina completa, no calcula PILA, no liquida salario integral ni embargos. Siguientes pasos razonables.">
+  <div class="kicker">Cierre</div>
+  <h2>Alcance, límites y siguientes pasos</h2>
+  <div class="cols c2">
+    <div class="card"><h3>Fuera de alcance (a propósito)</h3><ul><li>Nómina completa y PILA</li><li>Salario integral, incapacidades, embargos, retención</li><li>Autenticación multifactor y auditoría de cambios</li></ul></div>
+    <div class="card"><h3>Siguientes pasos</h3><ul><li>Importar el Excel directamente para crear el contrato</li><li>Revisión jurídica de los casos límite</li><li>Auditoría de cambios y MFA</li><li>Más años de parámetros automáticos</li></ul></div>
+  </div>
+</section>
+
+<!-- 18 -->
+<section class="slide" data-n="Preparación de preguntas. Por qué dos métodos: porque el Excel es el requisito del cliente y la norma es la defensa jurídica; el usuario decide. Por qué Laravel: productividad y migraciones. Por qué no IA para calcular: dinero exige determinismo y auditabilidad. Cómo evitas romper históricos: snapshots versionados.">
+  <div class="kicker">Preguntas probables</div>
+  <h2>Respuestas preparadas</h2>
+  <div class="cols c2">
+    <div class="card"><h3>¿Por qué dos métodos de cálculo?</h3><p>El Excel es el requisito; la norma es la defensa. No impongo una verdad: el contrato elige y queda registrado.</p></div>
+    <div class="card"><h3>¿Por qué no usar IA para calcular?</h3><p>Dinero exige determinismo y auditoría. La IA explica y extrae; el motor decide la cifra.</p></div>
+    <div class="card"><h3>¿Qué pasa si cambia la norma?</h3><p>Se actualiza la tabla de parámetros del año; los snapshots anteriores no se recalculan.</p></div>
+    <div class="card"><h3>¿Por qué Laravel monolito?</h3><p>Entrega rápida, migraciones, validación y pruebas integradas; operación simple con un contenedor.</p></div>
+  </div>
+</section>
+
+</div>
+<div class="notes" id="notes"></div>
+<div class="hint">← → navegar · N notas · F pantalla completa</div>
+<div class="bar" id="bar"></div>
+<script>
+const slides=[...document.querySelectorAll('.slide')];let i=+(location.hash.slice(1))||0;
+slides.forEach((s,k)=>{const f=document.createElement('div');f.className='foot';if(!s.classList.contains('cover'))f.innerHTML='<span>Blindem Liquidaciones</span><span>'+(k+1)+' / '+slides.length+'</span>';s.appendChild(f)});
+function show(n){i=Math.max(0,Math.min(slides.length-1,n));slides.forEach((s,k)=>s.classList.toggle('on',k===i));document.getElementById('notes').textContent=slides[i].dataset.n||'';document.getElementById('bar').style.width=((i+1)/slides.length*100)+'%';history.replaceState(null,'','#'+i)}
+document.addEventListener('keydown',e=>{if(['ArrowRight','PageDown',' ','Enter'].includes(e.key)){e.preventDefault();show(i+1)}else if(['ArrowLeft','PageUp','Backspace'].includes(e.key)){e.preventDefault();show(i-1)}else if(e.key==='Home')show(0);else if(e.key==='End')show(slides.length-1);else if(e.key==='n'||e.key==='N')document.body.classList.toggle('notes-on');else if(e.key==='f'||e.key==='F'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()}});
+document.addEventListener('click',e=>{show(e.clientX>innerWidth/2?i+1:i-1)});
+show(i);
+</script>
+</body>
+</html>
