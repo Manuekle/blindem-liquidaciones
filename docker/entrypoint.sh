@@ -18,6 +18,10 @@ if [ "${RUN_SEED:-false}" = "true" ]; then
         php artisan db:seed --class=CatalogSeeder --force
     fi
 fi
+# Opt-in: the two Excel test cases (template method), without demo users. Needs an existing admin.
+if [ "${SEED_EXCEL_CASES:-false}" = "true" ]; then
+    php artisan db:seed --class=ExcelCaseSeeder --force
+fi
 # First admin for hosts without a shell. Skipped when the account already exists.
 if [ -n "${ADMIN_EMAIL:-}" ] && [ -n "${ADMIN_PASSWORD:-}" ]; then
     printf '%s\n%s\n' "$ADMIN_PASSWORD" "$ADMIN_PASSWORD" \
